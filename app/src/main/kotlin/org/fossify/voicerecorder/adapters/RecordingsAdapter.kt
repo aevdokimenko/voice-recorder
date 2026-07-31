@@ -21,8 +21,6 @@ import org.fossify.voicerecorder.activities.SimpleActivity
 import org.fossify.voicerecorder.databinding.ItemRecordingBinding
 import org.fossify.voicerecorder.dialogs.DeleteConfirmationDialog
 import org.fossify.voicerecorder.dialogs.RenameRecordingDialog
-import org.fossify.voicerecorder.extensions.config
-import org.fossify.voicerecorder.extensions.deleteRecordings
 import org.fossify.voicerecorder.extensions.trashRecordings
 import org.fossify.voicerecorder.interfaces.RefreshRecordingsListener
 import org.fossify.voicerecorder.models.Events
@@ -150,43 +148,14 @@ class RecordingsAdapter(
             resources.getQuantityString(R.plurals.delete_recordings, itemsCnt, itemsCnt)
         }
 
-        val baseString = if (activity.config.useRecycleBin) {
-            org.fossify.commons.R.string.move_to_recycle_bin_confirmation
-        } else {
-            R.string.delete_recordings_confirmation
-        }
-        val question = String.format(resources.getString(baseString), items)
+        val question = String.format(
+            resources.getString(org.fossify.commons.R.string.move_to_recycle_bin_confirmation),
+            items
+        )
 
-        DeleteConfirmationDialog(
-            activity = activity,
-            message = question,
-            showSkipRecycleBinOption = activity.config.useRecycleBin
-        ) { skipRecycleBin ->
+        DeleteConfirmationDialog(activity = activity, message = question) {
             ensureBackgroundThread {
-                val toRecycleBin = !skipRecycleBin && activity.config.useRecycleBin
-                if (toRecycleBin) {
-                    trashRecordings()
-                } else {
-                    deleteRecordings()
-                }
-            }
-        }
-    }
-
-    private fun deleteRecordings() {
-        if (selectedKeys.isEmpty()) {
-            return
-        }
-
-        val oldRecordingIndex = recordings.indexOfFirst { it.id == currRecordingId }
-        val recordingsToRemove = recordings
-            .filter { selectedKeys.contains(it.id) } as ArrayList<Recording>
-
-        val positions = getSelectedItemPositions()
-
-        activity.deleteRecordings(recordingsToRemove) { success ->
-            if (success) {
-                doDeleteAnimation(oldRecordingIndex, recordingsToRemove, positions)
+                trashRecordings()
             }
         }
     }

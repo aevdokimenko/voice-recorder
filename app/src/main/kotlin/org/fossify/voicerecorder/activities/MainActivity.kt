@@ -73,7 +73,7 @@ class MainActivity : SimpleActivity() {
     override fun onResume() {
         super.onResume()
         updateMenuColors()
-        if (getPagerAdapter()?.showRecycleBin != config.useRecycleBin) {
+        if (getPagerAdapter() == null) {
             setupViewPager()
         }
         setupTabColors()
@@ -161,15 +161,12 @@ class MainActivity : SimpleActivity() {
 
     private fun setupViewPager() {
         binding.mainTabsHolder.removeAllTabs()
-        var tabDrawables = arrayOf(
+        val tabDrawables = arrayOf(
             org.fossify.commons.R.drawable.ic_microphone_vector,
-            R.drawable.ic_playlist_play_vector
+            R.drawable.ic_playlist_play_vector,
+            org.fossify.commons.R.drawable.ic_delete_vector
         )
-        var tabLabels = arrayOf(R.string.recorder, R.string.player)
-        if (config.useRecycleBin) {
-            tabDrawables += org.fossify.commons.R.drawable.ic_delete_vector
-            tabLabels += org.fossify.commons.R.string.recycle_bin
-        }
+        val tabLabels = arrayOf(R.string.recorder, R.string.player, org.fossify.commons.R.string.recycle_bin)
 
         tabDrawables.forEachIndexed { i, drawableId ->
             binding.mainTabsHolder.newTab()
@@ -208,7 +205,7 @@ class MainActivity : SimpleActivity() {
             }
         )
 
-        binding.viewPager.adapter = ViewPagerAdapter(this, config.useRecycleBin)
+        binding.viewPager.adapter = ViewPagerAdapter(this, true)
         binding.viewPager.offscreenPageLimit = 2
         binding.viewPager.onPageChangeListener {
             binding.mainTabsHolder.getTabAt(it)?.select()

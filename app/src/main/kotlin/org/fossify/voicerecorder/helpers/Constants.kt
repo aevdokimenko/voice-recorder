@@ -76,7 +76,6 @@ const val EXTENSION = "extension"
 const val MICROPHONE_MODE = "microphone_mode"
 const val BITRATE = "bitrate"
 const val SAMPLING_RATE = "sampling_rate"
-const val USE_RECYCLE_BIN = "use_recycle_bin"
 const val LAST_RECYCLE_BIN_CHECK = "last_recycle_bin_check"
 const val KEEP_SCREEN_ON = "keep_screen_on"
 

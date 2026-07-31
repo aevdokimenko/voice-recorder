@@ -1025,13 +1025,13 @@ git commit -m "chore: trim Settings to save-folder, keep-screen-on, and general 
 **Interfaces:**
 - Produces: `DeleteConfirmationDialog(activity, message, callback: () -> Unit)` — drops the `showSkipRecycleBinOption`/`skipRecycleBin` parameter entirely; every delete from the main list is now unconditionally a trash operation.
 
-- [ ] **Step 1: Remove `Config.useRecycleBin`**
+- [x] **Step 1: Remove `Config.useRecycleBin`**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt`, delete lines 81-83 (the `useRecycleBin` property).
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Constants.kt`, delete line 101 (`const val USE_RECYCLE_BIN = "use_recycle_bin"`).
 
-- [ ] **Step 2: Simplify `DeleteConfirmationDialog` to a plain trash confirmation**
+- [x] **Step 2: Simplify `DeleteConfirmationDialog` to a plain trash confirmation**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/dialogs/DeleteConfirmationDialog.kt`:
 
@@ -1100,7 +1100,7 @@ Edit `app/src/main/res/layout/dialog_delete_confirmation.xml`, remove the `skip_
 
 Remove the now-unused `skip_the_recycle_bin` string from `app/src/main/res/values/strings.xml` (grep first to confirm no other usage).
 
-- [ ] **Step 3: Simplify `RecordingsAdapter`'s delete flow to always trash**
+- [x] **Step 3: Simplify `RecordingsAdapter`'s delete flow to always trash**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/adapters/RecordingsAdapter.kt`, replace `askConfirmDelete()` and `deleteRecordings()` (lines 144-174 through the start of `deleteRecordings()`):
 
@@ -1131,7 +1131,7 @@ Delete the standalone `deleteRecordings()` method (the permanent-delete path) fr
 
 Remove the now-unused `import org.fossify.voicerecorder.extensions.deleteRecordings` from this file (`trashRecordings` import stays).
 
-- [ ] **Step 4: Remove `PlayerFragment`'s `useRecycleBin` tracking**
+- [x] **Step 4: Remove `PlayerFragment`'s `useRecycleBin` tracking**
 
 (This fragment is renamed/merged in Task 11, but fix the dangling `config.useRecycleBin` reference now so the build stays green between tasks.)
 
@@ -1156,14 +1156,24 @@ Edit `app/src/main/kotlin/org/fossify/voicerecorder/fragments/PlayerFragment.kt`
     }
 ```
 
-- [ ] **Step 5: Build and verify**
+- [x] **Step 5: Build and verify**
 
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed.
 
-Manually: long-press a recording in the list, tap delete — confirm it always asks "move to recycle bin?" with no checkbox, and the item lands in the Recycle Bin tab.
+Note: both passed clean (JDK 17 via `/opt/homebrew/opt/openjdk@17`). Also fixed the remaining
+`config.useRecycleBin` reads in `MainActivity.kt` (tab-list construction, pager setup, the
+onResume pager-rebuild check) and `extensions/Activity.kt`'s `deleteExpiredTrashedRecordings()` —
+not in this step's file list, but they'd have broken compilation once `Config.useRecycleBin` was
+deleted, so they were simplified to assume the recycle bin is always on (the recycle-bin tab is
+now unconditional; `ViewPagerAdapter`'s `showRecycleBin` constructor param stays until Task 11 drops
+it).
 
-- [ ] **Step 6: Commit**
+Manually: long-press a recording in the list, tap delete — confirm it always asks "move to recycle
+bin?" with no checkbox, and the item lands in the Recycle Bin tab (skipped - not automatable, no
+adb or connected device/emulator available in this environment).
+
+- [x] **Step 6: Commit**
 
 ```bash
 git add app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt \
@@ -1172,7 +1182,9 @@ git add app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt \
   app/src/main/kotlin/org/fossify/voicerecorder/dialogs/DeleteConfirmationDialog.kt \
   app/src/main/res/layout/dialog_delete_confirmation.xml \
   app/src/main/res/values/strings.xml \
-  app/src/main/kotlin/org/fossify/voicerecorder/fragments/PlayerFragment.kt
+  app/src/main/kotlin/org/fossify/voicerecorder/fragments/PlayerFragment.kt \
+  app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt \
+  app/src/main/kotlin/org/fossify/voicerecorder/extensions/Activity.kt
 git commit -m "feat: make the recycle bin always-on, simplify delete to a single trash flow"
 ```
 

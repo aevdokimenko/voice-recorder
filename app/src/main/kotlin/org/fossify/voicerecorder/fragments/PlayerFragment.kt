@@ -60,7 +60,6 @@ class PlayerFragment(
     private var lastSearchQuery = ""
     private var bus: EventBus? = null
     private var prevSavePath = ""
-    private var prevRecycleBinState = context.config.useRecycleBin
     private var playOnPreparation = true
     private lateinit var binding: FragmentPlayerBinding
 
@@ -74,7 +73,7 @@ class PlayerFragment(
 
     override fun onResume() {
         setupColors()
-        if (prevSavePath.isNotEmpty() && context!!.config.saveRecordingsFolder != prevSavePath || context.config.useRecycleBin != prevRecycleBinState) {
+        if (prevSavePath.isNotEmpty() && context!!.config.saveRecordingsFolder != prevSavePath) {
             loadRecordings()
         } else {
             getRecordingsAdapter()?.updateTextColor(context.getProperTextColor())
@@ -379,7 +378,6 @@ class PlayerFragment(
 
     private fun storePrevState() {
         prevSavePath = context!!.config.saveRecordingsFolder
-        prevRecycleBinState = context.config.useRecycleBin
     }
 
     private fun setupColors() {

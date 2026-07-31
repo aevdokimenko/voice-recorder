@@ -205,10 +205,7 @@ fun BaseSimpleActivity.deleteTrashedRecordings() {
 }
 
 fun BaseSimpleActivity.deleteExpiredTrashedRecordings() {
-    if (
-        config.useRecycleBin &&
-        config.lastRecycleBinCheck < System.currentTimeMillis() - DAY_SECONDS * 1000
-    ) {
+    if (config.lastRecycleBinCheck < System.currentTimeMillis() - DAY_SECONDS * 1000) {
         config.lastRecycleBinCheck = System.currentTimeMillis()
         ensureBackgroundThread {
             try {

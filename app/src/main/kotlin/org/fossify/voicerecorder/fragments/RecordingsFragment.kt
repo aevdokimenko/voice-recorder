@@ -95,7 +95,10 @@ class RecordingsFragment(
     override fun onDestroy() {
         bus?.unregister(this)
         pauseBlinkTimer.cancel()
-        player?.stop()
+        try {
+            player?.stop()
+        } catch (ignored: IllegalStateException) {
+        }
         player?.release()
         player = null
     }
@@ -186,7 +189,10 @@ class RecordingsFragment(
             }
 
             binding.recordingsPlaceholder.text = context.getString(stringId)
-            player?.stop()
+            try {
+                player?.stop()
+            } catch (ignored: IllegalStateException) {
+            }
         }
 
         val adapter = getRecordingsAdapter()

@@ -755,7 +755,7 @@ git commit -m "feat: drop mp3/AndroidLame recording path, keep m4a and ogg only"
 **Interfaces:**
 - Produces: `generateRecordingFilename(now: Calendar = Calendar.getInstance()): String` in `helpers/Filenames.kt`, returning e.g. `"20260729_140000"` — consumed by `Context.getFormattedFilename()`.
 
-- [ ] **Step 1: Add a JUnit dependency (first `src/test` in this repo)**
+- [x] **Step 1: Add a JUnit dependency (first `src/test` in this repo)**
 
 Edit `gradle/libs.versions.toml`, add to `[versions]`:
 
@@ -775,7 +775,7 @@ Edit `app/build.gradle.kts`, in the `dependencies` block:
     testImplementation(libs.junit)
 ```
 
-- [ ] **Step 2: Write the failing test for the fixed filename format**
+- [x] **Step 2: Write the failing test for the fixed filename format**
 
 Create `app/src/test/kotlin/org/fossify/voicerecorder/helpers/FilenamesTest.kt`:
 
@@ -815,12 +815,12 @@ class FilenamesTest {
 }
 ```
 
-- [ ] **Step 3: Run the test to verify it fails**
+- [x] **Step 3: Run the test to verify it fails**
 
 Run: `./gradlew testDebugUnitTest --tests "org.fossify.voicerecorder.helpers.FilenamesTest"`
 Expected: FAIL — `generateRecordingFilename` is unresolved (doesn't exist yet).
 
-- [ ] **Step 4: Implement `generateRecordingFilename`**
+- [x] **Step 4: Implement `generateRecordingFilename`**
 
 Create `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Filenames.kt`:
 
@@ -839,12 +839,20 @@ fun generateRecordingFilename(now: Calendar = Calendar.getInstance()): String {
 }
 ```
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
+
+Note: the plan's `Filenames.kt` snippet formats with a `SimpleDateFormat` left at the system default
+time zone, while the test builds an explicit UTC `Calendar` — on a non-UTC machine this makes
+`formats as yyyyMMdd underscore HHmmss` fail (`expected:<...1[4]0509> but was:<...1[0]0509>`, a 4-hour
+offset matching this environment's local time zone). Fixed by setting
+`formatter.timeZone = now.timeZone` before formatting, so the output always reflects the passed-in
+calendar's zone (matches production use, where `Calendar.getInstance()` and the system-default
+formatter zone already agree).
 
 Run: `./gradlew testDebugUnitTest --tests "org.fossify.voicerecorder.helpers.FilenamesTest"`
 Expected: PASS (2 tests).
 
-- [ ] **Step 6: Wire `Context.getFormattedFilename()` to the new pure function**
+- [x] **Step 6: Wire `Context.getFormattedFilename()` to the new pure function**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/extensions/Context.kt`, replace `getFormattedFilename()` (lines 242-261):
 
@@ -854,13 +862,13 @@ fun Context.getFormattedFilename(): String = generateRecordingFilename()
 
 Remove the now-unused imports `java.util.Calendar` and `java.util.Locale` if nothing else in the file uses them (check with a grep first), and add `import org.fossify.voicerecorder.helpers.generateRecordingFilename`.
 
-- [ ] **Step 7: Remove the `filenamePattern` config property and its constants**
+- [x] **Step 7: Remove the `filenamePattern` config property and its constants**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt`, delete the `filenamePattern` property (lines 100-102).
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Constants.kt`, delete line 105 (`const val FILENAME_PATTERN = "filename_pattern"`) and line 108 (`const val DEFAULT_FILENAME_PATTERN = "%Y%M%D_%h%m%s"`).
 
-- [ ] **Step 8: Delete the pattern editor dialogs and their layouts**
+- [x] **Step 8: Delete the pattern editor dialogs and their layouts**
 
 ```bash
 git rm app/src/main/kotlin/org/fossify/voicerecorder/dialogs/FilenamePatternDialog.kt
@@ -873,12 +881,14 @@ Note: `SettingsActivity.setupFilenamePattern()` still references `FilenamePatter
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.kt`: remove the `setupFilenamePattern()` call from `onResume()` and delete the method body, and remove the `import org.fossify.voicerecorder.dialogs.FilenamePatternDialog` import. (The layout row itself — `settings_filename_pattern_holder` — is removed from `activity_settings.xml` together with the rest of the recording-settings section in Task 9, to keep that layout diff in one place.)
 
-- [ ] **Step 9: Build and verify**
+- [x] **Step 9: Build and verify**
 
 Run: `./gradlew assembleDebug detekt testDebugUnitTest`
 Expected: all succeed.
 
-- [ ] **Step 10: Commit**
+Note: all three passed clean (JDK 17 via `/opt/homebrew/opt/openjdk@17`).
+
+- [x] **Step 10: Commit**
 
 ```bash
 git add gradle/libs.versions.toml app/build.gradle.kts \

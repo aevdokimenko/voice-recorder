@@ -22,7 +22,6 @@ import org.fossify.commons.helpers.sumByInt
 import org.fossify.commons.models.RadioItem
 import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.databinding.ActivitySettingsBinding
-import org.fossify.voicerecorder.dialogs.FilenamePatternDialog
 import org.fossify.voicerecorder.dialogs.MoveRecordingsDialog
 import org.fossify.voicerecorder.extensions.config
 import org.fossify.voicerecorder.extensions.deleteTrashedRecordings
@@ -63,7 +62,6 @@ class SettingsActivity : SimpleActivity() {
         setupLanguage()
         setupChangeDateTimeFormat()
         setupSaveRecordingsFolder()
-        setupFilenamePattern()
         setupExtension()
         setupBitrate()
         setupSamplingRate()
@@ -144,15 +142,6 @@ class SettingsActivity : SimpleActivity() {
                         }
                     }
                 }
-            }
-        }
-    }
-
-    private fun setupFilenamePattern() {
-        binding.settingsFilenamePattern.text = config.filenamePattern
-        binding.settingsFilenamePatternHolder.setOnClickListener {
-            FilenamePatternDialog(this) { newPattern ->
-                binding.settingsFilenamePattern.text = newPattern
             }
         }
     }

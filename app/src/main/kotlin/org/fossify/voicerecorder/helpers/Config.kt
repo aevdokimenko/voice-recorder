@@ -87,8 +87,4 @@ class Config(context: Context) : BaseConfig(context) {
         set(wasMicModeWarningShown) = prefs.edit {
             putBoolean(WAS_MIC_MODE_WARNING_SHOWN, wasMicModeWarningShown)
         }
-
-    var filenamePattern: String
-        get() = prefs.getString(FILENAME_PATTERN, DEFAULT_FILENAME_PATTERN)!!
-        set(filenamePattern) = prefs.edit { putString(FILENAME_PATTERN, filenamePattern) }
 }

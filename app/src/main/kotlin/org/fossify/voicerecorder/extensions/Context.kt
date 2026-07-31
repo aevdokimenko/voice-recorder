@@ -32,10 +32,9 @@ import org.fossify.voicerecorder.helpers.DEFAULT_RECORDINGS_FOLDER
 import org.fossify.voicerecorder.helpers.IS_RECORDING
 import org.fossify.voicerecorder.helpers.MyWidgetRecordDisplayProvider
 import org.fossify.voicerecorder.helpers.TOGGLE_WIDGET_UI
+import org.fossify.voicerecorder.helpers.generateRecordingFilename
 import org.fossify.voicerecorder.models.Recording
 import java.io.File
-import java.util.Calendar
-import java.util.Locale
 import kotlin.math.roundToLong
 
 val Context.config: Config get() = Config.newInstance(applicationContext)
@@ -209,23 +208,4 @@ fun Context.createDocumentFile(path: String): Uri? {
     }
 }
 
-// move to commons in the future
-fun Context.getFormattedFilename(): String {
-    val pattern = config.filenamePattern
-    val calendar = Calendar.getInstance()
-
-    val year = calendar.get(Calendar.YEAR).toString()
-    val month = String.format(Locale.ROOT, "%02d", calendar.get(Calendar.MONTH) + 1)
-    val day = String.format(Locale.ROOT, "%02d", calendar.get(Calendar.DAY_OF_MONTH))
-    val hour = String.format(Locale.ROOT, "%02d", calendar.get(Calendar.HOUR_OF_DAY))
-    val minute = String.format(Locale.ROOT, "%02d", calendar.get(Calendar.MINUTE))
-    val second = String.format(Locale.ROOT, "%02d", calendar.get(Calendar.SECOND))
-
-    return pattern
-        .replace("%Y", year, false)
-        .replace("%M", month, false)
-        .replace("%D", day, false)
-        .replace("%h", hour, false)
-        .replace("%m", minute, false)
-        .replace("%s", second, false)
-}
+fun Context.getFormattedFilename(): String = generateRecordingFilename()

@@ -138,5 +138,6 @@ dependencies {
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.autofittextview)
+    testImplementation(libs.junit)
     detektPlugins(libs.compose.detekt)
 }

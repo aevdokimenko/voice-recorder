@@ -62,7 +62,6 @@ class SettingsActivity : SimpleActivity() {
         super.onResume()
         setupTopAppBar(binding.settingsAppbar, NavigationIcon.Arrow)
 
-        setupCustomizeColors()
         setupCustomizeWidgetColors()
         setupUseEnglish()
         setupLanguage()
@@ -80,19 +79,12 @@ class SettingsActivity : SimpleActivity() {
         updateTextColors(binding.settingsNestedScrollview)
 
         arrayOf(
-            binding.settingsColorCustomizationSectionLabel,
             binding.settingsGeneralSettingsLabel,
             binding.settingsRecordingSectionLabel,
             binding.settingsAudioSectionLabel,
             binding.settingsRecycleBinLabel
         ).forEach {
             it.setTextColor(getProperPrimaryColor())
-        }
-    }
-
-    private fun setupCustomizeColors() {
-        binding.settingsColorCustomizationHolder.setOnClickListener {
-            startCustomizationActivity()
         }
     }
 

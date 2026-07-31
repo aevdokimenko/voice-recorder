@@ -207,7 +207,7 @@ git commit -m "chore: collapse to a single build flavor, drop cross-promotion me
 **Interfaces:**
 - Produces: `SplashActivity` is the sole launcher entry point (its own `<intent-filter>` carries `MAIN`/`LAUNCHER` directly instead of via an alias).
 
-- [ ] **Step 1: Move the launcher intent-filter onto `SplashActivity` itself and delete all 19 aliases**
+- [x] **Step 1: Move the launcher intent-filter onto `SplashActivity` itself and delete all 19 aliases**
 
 Edit `app/src/main/AndroidManifest.xml`. First, change the `SplashActivity` declaration (lines 66-69) to carry the launcher intent-filter:
 
@@ -231,7 +231,7 @@ Also delete the `CustomizationActivity` declaration (lines 102-107):
         <!-- (org.fossify.commons.activities.CustomizationActivity entry removed) -->
 ```
 
-- [ ] **Step 2: Trim `SimpleActivity.getAppIconIDs()` to the single remaining icon**
+- [x] **Step 2: Trim `SimpleActivity.getAppIconIDs()` to the single remaining icon**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/SimpleActivity.kt`:
 
@@ -253,11 +253,11 @@ open class SimpleActivity : BaseSimpleActivity() {
 
 (`getAppIconIDs()` stays overridden — it's abstract on `BaseSimpleActivity` — just trimmed to one entry.)
 
-- [ ] **Step 2b: Note the update-check/GitHub-link caveat**
+- [x] **Step 2b: Note the update-check/GitHub-link caveat**
 
 `REPOSITORY_NAME` (`Voice-Recorder`) is consumed by `org.fossify:commons`' `getRepositoryName()`-based features (e.g. any GitHub-link/update-check UI commons builds from it). This repo's actual location is `github.com/aevdokimenko/voice-recorder`, not `FossifyOrg/Voice-Recorder`, and commons' internals aren't visible from this codebase to know whether it hardcodes the `FossifyOrg` org alongside the repo name. Flag this rather than guess: if such a feature surfaces during manual testing in Task 14 (e.g. a broken "view on GitHub" link), file it as a follow-up rather than patching commons internals blind.
 
-- [ ] **Step 3: Remove the color-customization row and its click handler from Settings**
+- [x] **Step 3: Remove the color-customization row and its click handler from Settings**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.kt`: remove the `setupCustomizeColors()` call from `onResume()` (line 65) and delete the method itself (lines 93-97):
 
@@ -265,18 +265,22 @@ Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.
     // (setupCustomizeColors() and its call site removed)
 ```
 
-- [ ] **Step 4: Remove the color-customization section from the Settings layout**
+- [x] **Step 4: Remove the color-customization section from the Settings layout**
 
 Edit `app/src/main/res/layout/activity_settings.xml`: delete the `settings_color_customization_section_label` `<TextView>`, the `settings_color_customization_holder` `<ConstraintLayout>`, and the `settings_color_customization_divider` `<include>` (lines 38-81 up to but not including the widget-color-customization block, which Task 4 removes separately).
 
 Also remove `settings_color_customization_section_label` from the color-tinting array in `SettingsActivity.onResume()` (part of the `arrayOf(...).forEach { it.setTextColor(...) }` block) — it no longer exists in the layout.
 
-- [ ] **Step 5: Build and manually verify the launcher icon**
+- [x] **Step 5: Build and manually verify the launcher icon**
 
 Run: `./gradlew installDebug`
 Expected: install succeeds; a single "LR" launcher icon appears (no themed-icon entries in the launcher's icon-shortcut long-press menu).
 
-- [ ] **Step 6: Commit**
+Note: `./gradlew assembleDebug detekt` both passed clean (JDK 17 via `/opt/homebrew/opt/openjdk@17`,
+not on `PATH` by default in this environment). `installDebug`/on-device verification was skipped —
+no adb or connected device/emulator is available in this environment.
+
+- [x] **Step 6: Commit**
 
 ```bash
 git add app/src/main/AndroidManifest.xml \

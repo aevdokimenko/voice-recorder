@@ -229,10 +229,15 @@ class RecordingsFragment(
     @Suppress("TooGenericExceptionCaught")
     override fun playRecording(recording: Recording, playOnPrepared: Boolean) {
         val adapter = getRecordingsAdapter() ?: return
-        val isTappingCurrentlyPlayingRow = adapter.currRecordingId == recording.id && player?.isPlaying == true
-        if (isTappingCurrentlyPlayingRow) {
-            player?.pause()
-            adapter.updateCurrentRecording(recording.id, false)
+        val isTappingLoadedRow = adapter.currRecordingId == recording.id && player != null
+        if (isTappingLoadedRow) {
+            if (player?.isPlaying == true) {
+                player?.pause()
+                adapter.updateCurrentRecording(recording.id, false)
+            } else {
+                player?.start()
+                adapter.updateCurrentRecording(recording.id, true)
+            }
             return
         }
 

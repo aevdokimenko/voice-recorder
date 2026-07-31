@@ -36,8 +36,6 @@ import org.greenrobot.eventbus.EventBus
 
 class MainActivity : SimpleActivity() {
 
-    private var bus: EventBus? = null
-
     override var isSearchBarEnabled = true
 
     private lateinit var binding: ActivityMainBinding
@@ -67,9 +65,6 @@ class MainActivity : SimpleActivity() {
                 finish()
             }
         }
-
-        bus = EventBus.getDefault()
-        bus!!.register(this)
     }
 
     override fun onResume() {
@@ -89,7 +84,6 @@ class MainActivity : SimpleActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        bus?.unregister(this)
         getPagerAdapter()?.onDestroy()
 
         Intent(this@MainActivity, RecorderService::class.java).apply {

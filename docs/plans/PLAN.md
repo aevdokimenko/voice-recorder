@@ -531,7 +531,7 @@ git commit -m "chore: remove third-party RECORD_SOUND_ACTION handling"
 **Interfaces:**
 - Produces: `Context.getAllRecordings(trashed: Boolean = false): ArrayList<Recording>` — unchanged signature, simplified body.
 
-- [ ] **Step 1: Simplify `getAllRecordings()` and delete the legacy function**
+- [x] **Step 1: Simplify `getAllRecordings()` and delete the legacy function**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/extensions/Context.kt`:
 
@@ -547,7 +547,7 @@ fun Context.getAllRecordings(trashed: Boolean = false): ArrayList<Recording> {
 
 Delete the `getMediaStoreTrashedRecordings()` function (lines 140-160) entirely.
 
-- [ ] **Step 2: Remove the now-unused `isTrashedMediaStoreRecording()` helper**
+- [x] **Step 2: Remove the now-unused `isTrashedMediaStoreRecording()` helper**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/extensions/DocumentFile.kt`:
 
@@ -561,12 +561,12 @@ fun DocumentFile.isAudioRecording(): Boolean {
 }
 ```
 
-- [ ] **Step 3: Build and verify**
+- [x] **Step 3: Build and verify**
 
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed (no remaining references to the deleted function/property).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/src/main/kotlin/org/fossify/voicerecorder/extensions/Context.kt \

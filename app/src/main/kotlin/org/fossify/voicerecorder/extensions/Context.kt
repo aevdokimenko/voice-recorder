@@ -108,15 +108,7 @@ fun Context.hasRecordings(): Boolean {
 
 fun Context.getAllRecordings(trashed: Boolean = false): ArrayList<Recording> {
     return if (isRPlus()) {
-        val recordings = arrayListOf<Recording>()
-        recordings.addAll(getRecordings(trashed))
-        if (trashed) {
-            // Return recordings trashed using MediaStore, this won't be needed in the future
-            @Suppress("DEPRECATION")
-            recordings.addAll(getMediaStoreTrashedRecordings())
-        }
-
-        recordings
+        getRecordings(trashed)
     } else {
         getLegacyRecordings(trashed)
     }
@@ -130,28 +122,6 @@ private fun Context.getRecordings(trashed: Boolean = false): ArrayList<Recording
         if (file.isAudioRecording()) {
             recordings.add(
                 readRecordingFromFile(file)
-            )
-        }
-    }
-
-    return recordings
-}
-
-@Deprecated(
-    message = "Use getRecordings instead. This method is only here for backward compatibility.",
-    replaceWith = ReplaceWith("getRecordings(trashed = true)")
-)
-private fun Context.getMediaStoreTrashedRecordings(): ArrayList<Recording> {
-    val recordings = ArrayList<Recording>()
-    val folder = config.saveRecordingsFolder
-    val documentFiles = getDocumentSdk30(folder)?.listFiles() ?: return recordings
-    documentFiles.forEach { file ->
-        if (file.isTrashedMediaStoreRecording()) {
-            val recording = readRecordingFromFile(file)
-            recordings.add(
-                recording.copy(
-                    title = "^\\.trashed-\\d+-".toRegex().replace(file.name!!, "")
-                )
             )
         }
     }

@@ -149,7 +149,10 @@ class RecordingsFragment(
     override fun stopPlaybackOf(recordingId: Int) {
         val adapter = getRecordingsAdapter() ?: return
         if (adapter.currRecordingId == recordingId) {
-            player?.stop()
+            try {
+                player?.stop()
+            } catch (ignored: IllegalStateException) {
+            }
             adapter.updateCurrentRecording(0, false)
         }
     }

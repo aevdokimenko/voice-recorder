@@ -2206,7 +2206,7 @@ git commit -m "feat: move Empty Recycle Bin action into the Recycle Bin tab's to
 **Interfaces:**
 - None (leaf UI change).
 
-- [ ] **Step 1: Add the attribution string**
+- [x] **Step 1: Add the attribution string**
 
 Edit `app/src/main/res/values/strings.xml`, add:
 
@@ -2214,7 +2214,7 @@ Edit `app/src/main/res/values/strings.xml`, add:
     <string name="based_on_fossify_voice_recorder">LR is based on Fossify Voice Recorder (GPLv3), modified 2026 — source: https://github.com/aevdokimenko/voice-recorder</string>
 ```
 
-- [ ] **Step 2: Add it as an always-first FAQ entry in `launchAbout()`**
+- [x] **Step 2: Add it as an always-first FAQ entry in `launchAbout()`**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`'s `launchAbout()`:
 
@@ -2237,14 +2237,18 @@ Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`'
 
 Remove the now-dead `if (!resources.getBoolean(org.fossify.commons.R.bool.hide_google_relations))` block that used to add two more FAQ items — with the multi-flavor `bools.xml` overrides gone (Task 2), this always reads whatever `org.fossify:commons` itself defaults `hide_google_relations` to, which is no longer a meaningful signal for this single-purpose internal app; drop the conditional and the two Google-relations FAQ items entirely.
 
-- [ ] **Step 3: Build and manually verify**
+- [x] **Step 3: Build and manually verify**
 
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed.
 
 Manually: open the About screen (toolbar overflow → About) and confirm the first FAQ entry shows the Fossify/GPLv3 attribution with the fork URL.
 
-- [ ] **Step 4: Commit**
+Note: `./gradlew assembleDebug detekt` both passed clean (JDK 17 via `/opt/homebrew/opt/openjdk@17`).
+Manually opening the About screen on-device (skipped - not automatable): no adb or connected
+device/emulator is available in this environment.
+
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt \

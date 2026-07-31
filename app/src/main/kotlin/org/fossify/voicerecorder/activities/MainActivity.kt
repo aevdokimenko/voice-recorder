@@ -265,6 +265,10 @@ class MainActivity : SimpleActivity() {
 
         val faqItems = arrayListOf(
             FAQItem(
+                title = R.string.based_on_fossify_voice_recorder,
+                text = R.string.based_on_fossify_voice_recorder
+            ),
+            FAQItem(
                 title = R.string.faq_1_title,
                 text = R.string.faq_1_text
             ),
@@ -273,21 +277,6 @@ class MainActivity : SimpleActivity() {
                 text = org.fossify.commons.R.string.faq_9_text_commons
             )
         )
-
-        if (!resources.getBoolean(org.fossify.commons.R.bool.hide_google_relations)) {
-            faqItems.add(
-                FAQItem(
-                    title = org.fossify.commons.R.string.faq_2_title_commons,
-                    text = org.fossify.commons.R.string.faq_2_text_commons
-                )
-            )
-            faqItems.add(
-                FAQItem(
-                    title = org.fossify.commons.R.string.faq_6_title_commons,
-                    text = org.fossify.commons.R.string.faq_6_text_commons
-                )
-            )
-        }
 
         startAboutActivity(
             appNameId = R.string.app_name,

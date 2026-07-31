@@ -12,7 +12,6 @@ import org.fossify.commons.extensions.appLaunched
 import org.fossify.commons.extensions.checkAppSideloading
 import org.fossify.commons.extensions.getBottomNavigationBackgroundColor
 import org.fossify.commons.extensions.hideKeyboard
-import org.fossify.commons.extensions.launchMoreAppsFromUsIntent
 import org.fossify.commons.extensions.onPageChangeListener
 import org.fossify.commons.extensions.onTabSelectionChanged
 import org.fossify.commons.extensions.toast
@@ -53,7 +52,6 @@ class MainActivity : SimpleActivity() {
         setContentView(binding.root)
         appLaunched(BuildConfig.APPLICATION_ID)
         setupOptionsMenu()
-        refreshMenuItems()
 
         setupEdgeToEdge(padBottomImeAndSystem = listOf(binding.mainTabsHolder))
 
@@ -127,14 +125,6 @@ class MainActivity : SimpleActivity() {
         }
     }
 
-    private fun refreshMenuItems() {
-        binding.mainMenu.requireToolbar().menu.apply {
-            findItem(R.id.more_apps_from_us).isVisible = !resources.getBoolean(
-                org.fossify.commons.R.bool.hide_google_relations
-            )
-        }
-    }
-
     private fun setupOptionsMenu() {
         binding.mainMenu.requireToolbar().inflateMenu(R.menu.menu)
         binding.mainMenu.toggleHideOnScroll(false)
@@ -152,7 +142,6 @@ class MainActivity : SimpleActivity() {
 
         binding.mainMenu.requireToolbar().setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.more_apps_from_us -> launchMoreAppsFromUsIntent()
                 R.id.settings -> launchSettings()
                 R.id.about -> launchAbout()
                 else -> return@setOnMenuItemClickListener false

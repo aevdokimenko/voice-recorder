@@ -132,7 +132,7 @@ git commit -m "chore: rebrand to LR (ai.lequipe.lr)"
 **Interfaces:**
 - Produces: a single build variant (`debug`/`release` only, no flavor prefix) — later tasks and CLAUDE.md's Gradle command examples assume this.
 
-- [ ] **Step 1: Remove the flavor dimension from `app/build.gradle.kts`**
+- [x] **Step 1: Remove the flavor dimension from `app/build.gradle.kts`**
 
 Delete lines 84-89 (`flavorDimensions.add("variants")` through the closing `}` of `productFlavors`):
 
@@ -140,17 +140,17 @@ Delete lines 84-89 (`flavorDimensions.add("variants")` through the closing `}` o
     // (flavorDimensions.add("variants") / productFlavors block removed entirely)
 ```
 
-- [ ] **Step 2: Delete the foss and gplay source sets**
+- [x] **Step 2: Delete the foss and gplay source sets**
 
 ```bash
 git rm -r app/src/foss app/src/gplay
 ```
 
-- [ ] **Step 3: Remove "More Fossify apps" from the options menu**
+- [x] **Step 3: Remove "More Fossify apps" from the options menu**
 
 Edit `app/src/main/res/menu/menu.xml`, delete the `more_apps_from_us` `<item>` (lines 16-19), leaving only `settings` and `about`.
 
-- [ ] **Step 4: Remove the cross-promotion menu wiring in `MainActivity`**
+- [x] **Step 4: Remove the cross-promotion menu wiring in `MainActivity`**
 
 `refreshMenuItems()` (lines 130-136) exists solely to toggle the now-deleted `more_apps_from_us` item's visibility, so both it and its call site go away. Edit `onCreate()` (lines 55-56):
 
@@ -177,7 +177,7 @@ Update `setupOptionsMenu()`'s click handler (lines 153-161) to drop the `more_ap
 
 Remove the now-unused `import org.fossify.commons.extensions.launchMoreAppsFromUsIntent` from the top of the file.
 
-- [ ] **Step 5: Build and verify only one variant exists**
+- [x] **Step 5: Build and verify only one variant exists**
 
 Run: `./gradlew tasks --group build`
 Expected: `assembleDebug` / `assembleRelease` are listed with no `Core`/`Foss`/`Gplay` variants.
@@ -185,7 +185,7 @@ Expected: `assembleDebug` / `assembleRelease` are listed with no `Core`/`Foss`/`
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add app/build.gradle.kts app/src/main/res/menu/menu.xml \

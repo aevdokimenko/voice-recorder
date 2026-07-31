@@ -2104,7 +2104,7 @@ git commit -m "feat: merge recorder and player into a single Recordings screen"
 **Interfaces:**
 - Consumes: `Context.deleteExpiredTrashedRecordings()`'s sibling extension `BaseSimpleActivity.deleteTrashedRecordings()` (unchanged, from `extensions/Activity.kt`).
 
-- [ ] **Step 1: Add the menu item, hidden by default**
+- [x] **Step 1: Add the menu item, hidden by default**
 
 Edit `app/src/main/res/menu/menu.xml`, add before the closing `</menu>`:
 
@@ -2117,7 +2117,7 @@ Edit `app/src/main/res/menu/menu.xml`, add before the closing `</menu>`:
         app:showAsAction="never" />
 ```
 
-- [ ] **Step 2: Show/hide it based on the active tab, and wire the click**
+- [x] **Step 2: Show/hide it based on the active tab, and wire the click**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`. Add a menu-visibility refresh, called both from the page-change listener and right after the pager is built:
 
@@ -2177,14 +2177,17 @@ Add the confirmation + action method:
 
 Add `import org.fossify.voicerecorder.extensions.deleteTrashedRecordings` and `import org.fossify.voicerecorder.models.Events` (the latter was removed from this file in Task 5 — re-add it here since it's needed again for `Events.RecordingTrashUpdated`).
 
-- [ ] **Step 3: Build and manually verify**
+- [x] **Step 3: Build and manually verify**
 
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed.
 
-Manually: with at least one item in the Recycle Bin, switch to the Recordings tab — confirm the toolbar shows no "Empty recycle bin" action; switch to the Recycle Bin tab — confirm it appears, tapping it asks for confirmation, and confirming empties the bin.
+Note: both passed clean (JDK 17 via `/opt/homebrew/opt/openjdk@17`). Manual on-device verification
+(with at least one item in the Recycle Bin, switching tabs to confirm the menu item's visibility and
+the confirm-then-empty flow) is skipped - not automatable: no adb or connected device/emulator
+available in this environment.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/src/main/res/menu/menu.xml \

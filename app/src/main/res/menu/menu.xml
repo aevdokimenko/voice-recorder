@@ -13,4 +13,10 @@
         android:icon="@drawable/ic_info_vector"
         android:title="@string/about"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/empty_recycle_bin"
+        android:icon="@drawable/ic_delete_vector"
+        android:title="@string/empty_recycle_bin"
+        android:visible="false"
+        app:showAsAction="never" />
 </menu>

@@ -27,8 +27,10 @@ import org.fossify.voicerecorder.adapters.ViewPagerAdapter
 import org.fossify.voicerecorder.databinding.ActivityMainBinding
 import org.fossify.voicerecorder.extensions.config
 import org.fossify.voicerecorder.extensions.deleteExpiredTrashedRecordings
+import org.fossify.voicerecorder.extensions.deleteTrashedRecordings
 import org.fossify.voicerecorder.extensions.ensureStoragePermission
 import org.fossify.voicerecorder.helpers.STOP_AMPLITUDE_UPDATE
+import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.services.RecorderService
 import org.greenrobot.eventbus.EventBus
 
@@ -121,6 +123,7 @@ class MainActivity : SimpleActivity() {
             when (menuItem.itemId) {
                 R.id.settings -> launchSettings()
                 R.id.about -> launchAbout()
+                R.id.empty_recycle_bin -> confirmEmptyRecycleBin()
                 else -> return@setOnMenuItemClickListener false
             }
             return@setOnMenuItemClickListener true
@@ -129,6 +132,28 @@ class MainActivity : SimpleActivity() {
 
     private fun updateMenuColors() {
         binding.mainMenu.updateColors()
+    }
+
+    private fun updateOptionsMenuForCurrentTab() {
+        val isTrashTabActive = binding.viewPager.currentItem == 1
+        binding.mainMenu.requireToolbar().menu.findItem(R.id.empty_recycle_bin).isVisible = isTrashTabActive
+    }
+
+    private fun confirmEmptyRecycleBin() {
+        org.fossify.commons.dialogs.ConfirmationDialog(
+            activity = this,
+            message = "",
+            messageId = org.fossify.commons.R.string.empty_recycle_bin_confirmation,
+            positive = org.fossify.commons.R.string.yes,
+            negative = org.fossify.commons.R.string.no
+        ) {
+            org.fossify.commons.helpers.ensureBackgroundThread {
+                deleteTrashedRecordings()
+                runOnUiThread {
+                    EventBus.getDefault().post(Events.RecordingTrashUpdated())
+                }
+            }
+        }
     }
 
     private fun tryInitVoiceRecorder() {
@@ -203,10 +228,12 @@ class MainActivity : SimpleActivity() {
         binding.viewPager.onPageChangeListener {
             binding.mainTabsHolder.getTabAt(it)?.select()
             (binding.viewPager.adapter as ViewPagerAdapter).finishActMode()
+            updateOptionsMenuForCurrentTab()
         }
 
         binding.viewPager.currentItem = config.lastUsedViewPagerPage
         binding.mainTabsHolder.getTabAt(config.lastUsedViewPagerPage)?.select()
+        updateOptionsMenuForCurrentTab()
     }
 
     private fun setupTabColors() {

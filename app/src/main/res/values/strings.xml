@@ -10,8 +10,7 @@
     <string name="no_recordings_found">No recordings created by this app\nhave been found</string>
     <string name="no_recordings_in_folder_found">No recordings have been found\nin the selected folder</string>
     <string name="paused">Paused</string>
-    <string name="recorder">Recorder</string>
-    <string name="player">Player</string>
+    <string name="recordings">Recordings</string>
     <!-- Confirmation dialog -->
     <string name="discard_recording">Discard recording</string>
     <string name="discard_recording_confirmation">Are you sure you want to discard the current recording? This cannot be undone.</string>

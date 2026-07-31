@@ -1209,7 +1209,7 @@ git commit -m "feat: make the recycle bin always-on, simplify delete to a single
 - Produces: `ViewPagerAdapter(activity: SimpleActivity)` (drops the `showRecycleBin` constructor param), `getCount()` always `2`; position `0` → `RecordingsFragment`, position `1` → `TrashFragment`.
 - Produces: `RecordingsAdapter.updateCurrentRecording(newId: Int, isPlaying: Boolean)` (adds the `isPlaying` param, was `updateCurrentRecording(newId: Int)`).
 
-- [ ] **Step 1: Add a play/pause indicator to the recording row layout**
+- [x] **Step 1: Add a play/pause indicator to the recording row layout**
 
 Edit `app/src/main/res/layout/item_recording.xml`, add an `ImageView` before `recording_title`, and shift `recording_title`'s start constraint to it:
 
@@ -1243,7 +1243,7 @@ Edit `app/src/main/res/layout/item_recording.xml`, add an `ImageView` before `re
             tools:text="2020_03_30_22_49_52" />
 ```
 
-- [ ] **Step 2: Extend `RecordingsAdapter` to show per-row play/pause state**
+- [x] **Step 2: Extend `RecordingsAdapter` to show per-row play/pause state**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/adapters/RecordingsAdapter.kt`. Add an `isCurrentlyPlaying` field and change `updateCurrentRecording`:
 
@@ -1300,7 +1300,7 @@ Update `setupView()` to set the icon:
     }
 ```
 
-- [ ] **Step 3: Create the merged layout**
+- [x] **Step 3: Create the merged layout**
 
 Create `app/src/main/res/layout/fragment_recordings.xml`, combining the recorder controls from `fragment_recorder.xml` (top) with the list from `fragment_player.xml` (below), dropping the entire `player_controls_wrapper` transport bar:
 
@@ -1436,7 +1436,7 @@ Create `app/src/main/res/layout/fragment_recordings.xml`, combining the recorder
 </org.fossify.voicerecorder.fragments.RecordingsFragment>
 ```
 
-- [ ] **Step 4: Create the merged fragment**
+- [x] **Step 4: Create the merged fragment**
 
 Create `app/src/main/kotlin/org/fossify/voicerecorder/fragments/RecordingsFragment.kt` by combining `RecorderFragment` (recorder controls/EventBus subscriptions) with `PlayerFragment`'s list/`MediaPlayer` logic, minus the transport bar (seek bar, prev/next, title, becoming-noisy receiver — dropped along with scrubbing/skip, since a single row's inline play/pause doesn't need "next"/"previous" or a `BecomingNoisyReceiver` pause-on-unplug convenience beyond what pausing on tap already gives):
 
@@ -1866,7 +1866,7 @@ git rm app/src/main/res/layout/fragment_player.xml
 
 Delete `app/src/main/kotlin/org/fossify/voicerecorder/receivers/BecomingNoisyReceiver.kt` — its only consumer (`PlayerFragment`'s pause-on-unplug) is gone, and nothing else in the codebase references it (confirm with a grep before deleting).
 
-- [ ] **Step 5: Fix `RecordingsAdapter`'s `refreshListener.playRecording` call for the removed play-next-on-delete behavior**
+- [x] **Step 5: Fix `RecordingsAdapter`'s `refreshListener.playRecording` call for the removed play-next-on-delete behavior**
 
 The old `doDeleteAnimation()` called `refreshListener.playRecording(newRecording, false)` when the currently-playing item was deleted, to auto-advance playback — that "auto-advance" concept doesn't fit a per-row toggle model. Edit `app/src/main/kotlin/org/fossify/voicerecorder/adapters/RecordingsAdapter.kt`'s `doDeleteAnimation()` and its only call site, `trashRecordings()`:
 
@@ -1908,7 +1908,7 @@ The old `doDeleteAnimation()` called `refreshListener.playRecording(newRecording
 
 (`oldRecordingIndex` is gone from both the computation in `trashRecordings()` and the `doDeleteAnimation()` signature — nothing else in the file calls `doDeleteAnimation()`, so this is the only call site to update.)
 
-- [ ] **Step 6: Fix `ViewPagerAdapter` to a fixed 2-tab pager**
+- [x] **Step 6: Fix `ViewPagerAdapter` to a fixed 2-tab pager**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/adapters/ViewPagerAdapter.kt`:
 
@@ -1977,7 +1977,7 @@ class ViewPagerAdapter(
 }
 ```
 
-- [ ] **Step 7: Fix `MainActivity` for the fixed 2-tab pager**
+- [x] **Step 7: Fix `MainActivity` for the fixed 2-tab pager**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`, replace `setupViewPager()` (lines 190-252):
 
@@ -2055,7 +2055,7 @@ Replace `onResume()`'s pager-rebuild check — the pager is now always the same 
 
 (`setupViewPager()` is still called the first time from `tryInitVoiceRecorder()` after permissions are granted, same as today — this change only removes the "was the toggle flipped" rebuild condition, since there's no toggle left. Confirm `tryInitVoiceRecorder()`'s existing call to `setupViewPager()` stays as-is.)
 
-- [ ] **Step 8: Add the `recordings` tab-label string, remove the now-unused `recorder`/`player` strings**
+- [x] **Step 8: Add the `recordings` tab-label string, remove the now-unused `recorder`/`player` strings**
 
 Edit `app/src/main/res/values/strings.xml`, add:
 
@@ -2065,7 +2065,7 @@ Edit `app/src/main/res/values/strings.xml`, add:
 
 Remove `<string name="recorder">Recorder</string>` and `<string name="player">Player</string>` (grep first to confirm no other usage — the only consumer was the tab-label array just replaced).
 
-- [ ] **Step 9: Build and manually verify**
+- [x] **Step 9: Build and manually verify**
 
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed.
@@ -2075,7 +2075,7 @@ Expected: no matches.
 
 Manually: install and confirm exactly 2 tabs (Recordings, Recycle Bin); record something, confirm it appears in the list below the recorder controls with a play icon; tap the row to play, tap again to pause; long-press to trash it, confirm it shows up in the Recycle Bin tab.
 
-- [ ] **Step 10: Commit**
+- [x] **Step 10: Commit**
 
 ```bash
 git add app/src/main/kotlin/org/fossify/voicerecorder/fragments/RecordingsFragment.kt \

@@ -73,7 +73,7 @@ class MainActivity : SimpleActivity() {
     override fun onResume() {
         super.onResume()
         updateMenuColors()
-        if (getPagerAdapter() == null) {
+        if (binding.viewPager.adapter == null) {
             setupViewPager()
         }
         setupTabColors()
@@ -112,12 +112,6 @@ class MainActivity : SimpleActivity() {
         binding.mainMenu.requireToolbar().inflateMenu(R.menu.menu)
         binding.mainMenu.toggleHideOnScroll(false)
         binding.mainMenu.setupMenu()
-
-        binding.mainMenu.onSearchOpenListener = {
-            if (binding.viewPager.currentItem == 0) {
-                binding.viewPager.currentItem = 1
-            }
-        }
 
         binding.mainMenu.onSearchTextChangedListener = { text ->
             getPagerAdapter()?.searchTextChanged(text)
@@ -163,10 +157,9 @@ class MainActivity : SimpleActivity() {
         binding.mainTabsHolder.removeAllTabs()
         val tabDrawables = arrayOf(
             org.fossify.commons.R.drawable.ic_microphone_vector,
-            R.drawable.ic_playlist_play_vector,
             org.fossify.commons.R.drawable.ic_delete_vector
         )
-        val tabLabels = arrayOf(R.string.recorder, R.string.player, org.fossify.commons.R.string.recycle_bin)
+        val tabLabels = arrayOf(R.string.recordings, org.fossify.commons.R.string.recycle_bin)
 
         tabDrawables.forEachIndexed { i, drawableId ->
             binding.mainTabsHolder.newTab()
@@ -195,7 +188,7 @@ class MainActivity : SimpleActivity() {
         binding.mainTabsHolder.onTabSelectionChanged(
             tabUnselectedAction = {
                 updateBottomTabItemColors(it.customView, false)
-                if (it.position == 1 || it.position == 2) {
+                if (it.position == 1) {
                     binding.mainMenu.closeSearch()
                 }
             },
@@ -205,8 +198,8 @@ class MainActivity : SimpleActivity() {
             }
         )
 
-        binding.viewPager.adapter = ViewPagerAdapter(this, true)
-        binding.viewPager.offscreenPageLimit = 2
+        binding.viewPager.adapter = ViewPagerAdapter(this)
+        binding.viewPager.offscreenPageLimit = 1
         binding.viewPager.onPageChangeListener {
             binding.mainTabsHolder.getTabAt(it)?.select()
             (binding.viewPager.adapter as ViewPagerAdapter).finishActMode()

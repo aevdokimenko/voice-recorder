@@ -16,6 +16,17 @@
         android:paddingEnd="@dimen/activity_margin"
         android:paddingBottom="@dimen/normal_margin">
 
+        <ImageView
+            android:id="@+id/recording_play_pause"
+            android:layout_width="@dimen/normal_icon_size"
+            android:layout_height="@dimen/normal_icon_size"
+            android:layout_marginEnd="@dimen/normal_margin"
+            android:contentDescription="@string/playpause"
+            android:src="@drawable/ic_play_vector"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
             android:id="@+id/recording_title"
             android:layout_width="0dp"
@@ -27,7 +38,7 @@
             android:textSize="@dimen/bigger_text_size"
             app:layout_constraintBottom_toTopOf="@+id/recording_date"
             app:layout_constraintEnd_toStartOf="@+id/recording_duration"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/recording_play_pause"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5"
             app:layout_constraintVertical_chainStyle="packed"

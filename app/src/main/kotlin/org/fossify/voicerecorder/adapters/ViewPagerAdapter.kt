@@ -7,21 +7,19 @@ import androidx.viewpager.widget.PagerAdapter
 import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.activities.SimpleActivity
 import org.fossify.voicerecorder.fragments.MyViewPagerFragment
-import org.fossify.voicerecorder.fragments.PlayerFragment
+import org.fossify.voicerecorder.fragments.RecordingsFragment
 import org.fossify.voicerecorder.fragments.TrashFragment
 
 class ViewPagerAdapter(
-    private val activity: SimpleActivity,
-    val showRecycleBin: Boolean
+    private val activity: SimpleActivity
 ) : PagerAdapter() {
 
     private val fragments = SparseArray<MyViewPagerFragment>()
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val layout = when (position) {
-            0 -> R.layout.fragment_recorder
-            1 -> R.layout.fragment_player
-            2 -> R.layout.fragment_trash
+            0 -> R.layout.fragment_recordings
+            1 -> R.layout.fragment_trash
             else -> throw IllegalArgumentException("Invalid position. Count = $count, requested position = $position")
         }
 
@@ -36,7 +34,7 @@ class ViewPagerAdapter(
         container.removeView(item as View)
     }
 
-    override fun getCount() = if (showRecycleBin) 3 else 2
+    override fun getCount() = 2
 
     override fun isViewFromObject(view: View, item: Any) = view == item
 
@@ -53,16 +51,12 @@ class ViewPagerAdapter(
     }
 
     fun finishActMode() {
-        (fragments[1] as? PlayerFragment)?.finishActMode()
-        if (showRecycleBin) {
-            (fragments[2] as? TrashFragment)?.finishActMode()
-        }
+        (fragments[0] as? RecordingsFragment)?.finishActMode()
+        (fragments[1] as? TrashFragment)?.finishActMode()
     }
 
     fun searchTextChanged(text: String) {
-        (fragments[1] as? PlayerFragment)?.onSearchTextChanged(text)
-        if (showRecycleBin) {
-            (fragments[2] as? TrashFragment)?.onSearchTextChanged(text)
-        }
+        (fragments[0] as? RecordingsFragment)?.onSearchTextChanged(text)
+        (fragments[1] as? TrashFragment)?.onSearchTextChanged(text)
     }
 }

@@ -26,7 +26,6 @@ import org.fossify.voicerecorder.interfaces.RefreshRecordingsListener
 import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.models.Recording
 import org.greenrobot.eventbus.EventBus
-import kotlin.math.min
 
 class RecordingsAdapter(
     activity: SimpleActivity,
@@ -38,6 +37,7 @@ class RecordingsAdapter(
     RecyclerViewFastScroller.OnPopupTextUpdate {
 
     var currRecordingId = 0
+    private var isCurrentlyPlaying = false
 
     init {
         setupDragListener(true)
@@ -165,7 +165,6 @@ class RecordingsAdapter(
             return
         }
 
-        val oldRecordingIndex = recordings.indexOfFirst { it.id == currRecordingId }
         val recordingsToRemove = recordings
             .filter { selectedKeys.contains(it.id) } as ArrayList<Recording>
 
@@ -173,14 +172,13 @@ class RecordingsAdapter(
 
         activity.trashRecordings(recordingsToRemove) { success ->
             if (success) {
-                doDeleteAnimation(oldRecordingIndex, recordingsToRemove, positions)
+                doDeleteAnimation(recordingsToRemove, positions)
                 EventBus.getDefault().post(Events.RecordingTrashUpdated())
             }
         }
     }
 
     private fun doDeleteAnimation(
-        oldRecordingIndex: Int,
         recordingsToRemove: ArrayList<Recording>,
         positions: ArrayList<Int>
     ) {
@@ -192,18 +190,14 @@ class RecordingsAdapter(
             } else {
                 positions.sortDescending()
                 removeSelectedItems(positions)
-                if (recordingsToRemove.map { it.id }.contains(currRecordingId)) {
-                    val newRecordingIndex = min(oldRecordingIndex, recordings.size - 1)
-                    val newRecording = recordings[newRecordingIndex]
-                    refreshListener.playRecording(newRecording, false)
-                }
             }
         }
     }
 
-    fun updateCurrentRecording(newId: Int) {
+    fun updateCurrentRecording(newId: Int, isPlaying: Boolean) {
         val oldId = currRecordingId
         currRecordingId = newId
+        isCurrentlyPlaying = isPlaying
         notifyItemChanged(recordings.indexOfFirst { it.id == oldId })
         notifyItemChanged(recordings.indexOfFirst { it.id == newId })
     }
@@ -229,6 +223,15 @@ class RecordingsAdapter(
             if (recording.id == currRecordingId) {
                 recordingTitle.setTextColor(root.context.getProperPrimaryColor())
             }
+
+            val isThisRowPlaying = recording.id == currRecordingId && isCurrentlyPlaying
+            recordingPlayPause.setImageResource(
+                if (isThisRowPlaying) {
+                    org.fossify.commons.R.drawable.ic_pause_vector
+                } else {
+                    org.fossify.commons.R.drawable.ic_play_vector
+                }
+            )
 
             recordingTitle.text = recording.title
             recordingDate.text = recording.timestamp.formatDate(root.context)

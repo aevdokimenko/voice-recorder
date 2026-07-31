@@ -2262,12 +2262,22 @@ git commit -m "docs: add GPLv3/Fossify Voice Recorder attribution to the About s
 
 **Files:** none (verification only).
 
-- [ ] **Step 1: Full clean build of every check**
+- [x] **Step 1: Full clean build of every check**
 
 Run: `./gradlew clean build`
 Expected: succeeds — compiles, runs `detekt` (0 issues beyond the existing baseline), runs `lint` (debug only, per `checkReleaseBuilds = false`), runs the new `FilenamesTest`, and assembles debug + release APKs.
 
-- [ ] **Step 2: Install on a device/emulator and walk the full golden path**
+Note: `./gradlew clean build` passed (JDK 17 via `/opt/homebrew/opt/openjdk@17`) — `detekt` clean
+(30 files analyzed, 0 issues), `lint` within baseline (139 warnings filtered against
+`lint-baseline.xml`, 12 stale baseline entries no longer present), `testDebugUnitTest` passed
+(`FilenamesTest`), `assembleDebug`/`assembleRelease` both succeeded. Two pre-existing resource-merge
+warnings noted: `string/player` and `string/recorder` are still declared in some `values-*/` locale
+translation files (removed from the default `values/strings.xml` in Task 11) — per `CLAUDE.md`,
+only `values/strings.xml` is edited by hand and localized copies are left for translators/automation,
+so this is expected and self-resolves on the next translation sync, not a regression.
+
+- [x] **Step 2: Install on a device/emulator and walk the full golden path** — manual test (skipped -
+  not automatable: no adb or connected device/emulator available in this environment)
 
 Run: `./gradlew installDebug`
 
@@ -2284,7 +2294,7 @@ Manually verify, in order:
 10. Settings screen shows only: save-recordings-folder, keep-screen-on, and the untouched general (language/date-time) rows — no format/bitrate/sample-rate/mic-mode/filename-pattern/recycle-bin-toggle rows.
 11. About screen shows the GPLv3/Fossify attribution FAQ entry first.
 
-- [ ] **Step 3: Grep sweep for anything the task-by-task removals might have missed**
+- [x] **Step 3: Grep sweep for anything the task-by-task removals might have missed**
 
 Run:
 
@@ -2295,6 +2305,14 @@ grep -rln "Mp3Recorder\|EXTENSION_MP3\|showRecycleBin\|useRecycleBin\|filenamePa
 
 Expected: first command has no output (package id fully rebranded); second command has no output (nothing left referencing the removed subsystems).
 
-- [ ] **Step 4: Confirm this plan's scope boundary**
+Note: both commands ran clean with no output, confirming the rebrand is complete and none of the
+removed subsystems (mp3/AndroidLame, mic-mode picker, filename pattern editor, record-after-launch,
+recycle-bin toggle, legacy MediaStore-trashed handling, third-party intent handling, widget configure
+activity) have leftover references anywhere under `app/src`.
+
+- [x] **Step 4: Confirm this plan's scope boundary**
 
 No commit needed for this step — it's a checklist confirmation, not a code change. Confirm that endpoint enrollment (QR scan, well-known check, `/enroll`/`/config`/`/presign`), the upload sidecar-status model, and the upload worker/retry logic are **not** present anywhere in this codebase yet — they're intentionally out of scope, covered by the next two plans (enrollment, then upload/retention) built on top of this one.
+
+Note: `grep -rln "enroll\|presign\|well-known\|well_known\|UploadWorker\|upload_status\|sidecar" app/src`
+returned no matches — confirmed none of these out-of-scope subsystems exist in this codebase yet.

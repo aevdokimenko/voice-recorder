@@ -1,9 +1,7 @@
 package org.fossify.voicerecorder.activities
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.provider.MediaStore
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
@@ -32,11 +30,8 @@ import org.fossify.voicerecorder.extensions.config
 import org.fossify.voicerecorder.extensions.deleteExpiredTrashedRecordings
 import org.fossify.voicerecorder.extensions.ensureStoragePermission
 import org.fossify.voicerecorder.helpers.STOP_AMPLITUDE_UPDATE
-import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.services.RecorderService
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 
 class MainActivity : SimpleActivity() {
 
@@ -117,9 +112,6 @@ class MainActivity : SimpleActivity() {
         return if (binding.mainMenu.isSearchOpen) {
             binding.mainMenu.closeSearch()
             true
-        } else if (isThirdPartyIntent()) {
-            setResult(Activity.RESULT_CANCELED, null)
-            false
         } else {
             false
         }
@@ -232,12 +224,8 @@ class MainActivity : SimpleActivity() {
             (binding.viewPager.adapter as ViewPagerAdapter).finishActMode()
         }
 
-        if (isThirdPartyIntent()) {
-            binding.viewPager.currentItem = 0
-        } else {
-            binding.viewPager.currentItem = config.lastUsedViewPagerPage
-            binding.mainTabsHolder.getTabAt(config.lastUsedViewPagerPage)?.select()
-        }
+        binding.viewPager.currentItem = config.lastUsedViewPagerPage
+        binding.mainTabsHolder.getTabAt(config.lastUsedViewPagerPage)?.select()
     }
 
     private fun setupTabColors() {
@@ -303,18 +291,4 @@ class MainActivity : SimpleActivity() {
         )
     }
 
-    private fun isThirdPartyIntent() = intent?.action == MediaStore.Audio.Media.RECORD_SOUND_ACTION
-
-    @Suppress("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun recordingSaved(event: Events.RecordingSaved) {
-        if (isThirdPartyIntent()) {
-            Intent().apply {
-                data = event.uri!!
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                setResult(Activity.RESULT_OK, this)
-            }
-            finish()
-        }
-    }
 }

@@ -458,7 +458,7 @@ git commit -m "chore: remove widget color customization, keep fixed recording-st
 **Interfaces:**
 - Produces: `MainActivity` no longer responds to `android.provider.MediaStore.RECORD_SOUND`; it is a normal launcher-only activity as far as intents are concerned.
 
-- [ ] **Step 1: Remove the intent-filter from the manifest**
+- [x] **Step 1: Remove the intent-filter from the manifest**
 
 Edit `app/src/main/AndroidManifest.xml`, change the `MainActivity` declaration (lines 71-80) to drop its `<intent-filter>`:
 
@@ -470,7 +470,7 @@ Edit `app/src/main/AndroidManifest.xml`, change the `MainActivity` declaration (
             android:launchMode="singleTask" />
 ```
 
-- [ ] **Step 2: Remove `isThirdPartyIntent()` and its call sites in `MainActivity`**
+- [x] **Step 2: Remove `isThirdPartyIntent()` and its call sites in `MainActivity`**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`:
 
@@ -504,7 +504,7 @@ Delete the `isThirdPartyIntent()` method and the `recordingSaved()` `@Subscribe`
 
 Remove the now-unused `import android.provider.MediaStore` and `import org.fossify.voicerecorder.models.Events` if nothing else in the file references `Events` (check with a grep before removing the import).
 
-- [ ] **Step 3: Build and verify**
+- [x] **Step 3: Build and verify**
 
 Run: `grep -n "Events\." app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`
 Expected: no matches — confirms the `Events` import is safe to remove.
@@ -512,7 +512,7 @@ Expected: no matches — confirms the `Events` import is safe to remove.
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/src/main/AndroidManifest.xml \

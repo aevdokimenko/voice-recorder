@@ -146,6 +146,14 @@ class RecordingsFragment(
 
     override fun refreshRecordings() = loadRecordings()
 
+    override fun stopPlaybackOf(recordingId: Int) {
+        val adapter = getRecordingsAdapter() ?: return
+        if (adapter.currRecordingId == recordingId) {
+            player?.stop()
+            adapter.updateCurrentRecording(0, false)
+        }
+    }
+
     override fun onLoadingStart() {
         if (itemsIgnoringSearch.isEmpty()) {
             binding.loadingIndicator.show()
@@ -225,6 +233,7 @@ class RecordingsFragment(
             return
         }
 
+        adapter.updateCurrentRecording(recording.id, false)
         player!!.apply {
             reset()
 

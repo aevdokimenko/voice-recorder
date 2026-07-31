@@ -213,9 +213,7 @@ class MainActivity : SimpleActivity() {
         binding.mainTabsHolder.onTabSelectionChanged(
             tabUnselectedAction = {
                 updateBottomTabItemColors(it.customView, false)
-                if (it.position == 1) {
-                    binding.mainMenu.closeSearch()
-                }
+                binding.mainMenu.closeSearch()
             },
             tabSelectedAction = {
                 binding.viewPager.currentItem = it.position

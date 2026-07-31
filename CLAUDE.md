@@ -5,7 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 
 Fossify Voice Recorder — an Android voice recorder app (Kotlin, XML layouts + view binding, no Compose).
-Single Gradle module `:app`, package `ai.lequipe.lr`. Java 17, minSdk 26, compileSdk 36.
+Single Gradle module `:app`, `applicationId` `ai.lequipe.lr` (app name "LR"). The Kotlin package and
+Gradle `namespace` were deliberately left as `org.fossify.voicerecorder` — source lives under
+`org/fossify/voicerecorder`, not `ai/lequipe/lr`. Java 17, minSdk 26, compileSdk 36.
 
 ## Commands
 
@@ -17,13 +19,13 @@ Requires a JDK 17 on `PATH` (`JAVA_HOME`). All commands use the Gradle wrapper.
 ./gradlew detekt                     # static analysis (must pass: maxIssues = 0)
 ./gradlew lint                       # Android lint (release builds are excluded via checkReleaseBuilds = false)
 ./gradlew detektBaseline             # regenerate app/detekt-baseline.xml
-./gradlew build                      # full check + assemble all flavors
+./gradlew build                      # full check + assemble debug/release
 ```
 
-There are **no unit or instrumentation tests** in this repo (no `src/test` or `src/androidTest`).
-`bundle exec fastlane android test` exists via the `fastlane-plugin-fossify` plugin but currently
-has nothing to run. Don't claim tests pass — verify changes by building and, when behavior matters,
-running on a device.
+There are no instrumentation tests (no `src/androidTest`). `app/src/test` has a small set of JVM unit
+tests (e.g. `FilenamesTest`), run with `./gradlew testDebugUnitTest`. `bundle exec fastlane android test`
+exists via the `fastlane-plugin-fossify` plugin but currently has nothing to run. Don't claim tests
+pass — verify changes by running the actual test task and, when behavior matters, on a device.
 
 Both `app/detekt-baseline.xml` and `app/lint-baseline.xml` are pre-existing suppression baselines,
 regenerated monthly by the `update-lint-baselines` workflow. New code must be clean without touching
@@ -51,14 +53,9 @@ duration, status, output file, amplitude timers. The UI never touches a recorder
   Subscribers register in `onAttachedToWindow`/`onCreate` and unregister in `onDestroy`.
 - `RecorderService.isRunning` is a static flag read by the UI and the widget.
 
-Encoding sits behind the `Recorder` interface with two implementations picked by `config.extension`:
-
-- `MediaRecorderWrapper` — m4a/AAC and ogg/Opus via `MediaRecorder`.
-- `Mp3Recorder` — raw `AudioRecord` PCM read loop on a background thread, encoded with AndroidLame
-  (`TAndroidLame`), amplitude computed manually from the PCM buffer.
-
-Valid bitrate/sampling-rate combinations differ per format and are tabulated in `Constants.kt`
-(`BITRATES`, `SAMPLING_RATES`, `SAMPLING_RATE_BITRATE_LIMITS`). Settings UI must respect these tables.
+Encoding goes through `MediaRecorderWrapper`, the sole `Recorder` implementation, producing m4a/AAC or
+ogg/Opus via `MediaRecorder` depending on `config.extension`. The mp3/AndroidLame (`Mp3Recorder`,
+raw `AudioRecord` PCM + `TAndroidLame`) path has been removed.
 
 ### Storage: three code paths by SDK level
 
@@ -78,35 +75,29 @@ This is the main source of complexity and bugs. `Context.kt` / `Activity.kt` in 
 ### Recycle bin
 
 Not MediaStore's trash — it's a hidden `.trash` subfolder inside the user's recordings folder
-(`Context.trashFolder`). Trash/restore are folder moves (`moveRecordings`). There is additional
-legacy handling for files still carrying MediaStore's `.trashed-<ts>-` filename prefix
-(`getMediaStoreTrashedRecordings`, deprecated). Expired items are purged after a month by
-`deleteExpiredTrashedRecordings`, called once per day from `MainActivity`.
+(`Context.trashFolder`). Trash/restore are folder moves (`moveRecordings`). The recycle bin is always
+on (no `useRecycleBin` setting); deleting a recording always trashes it first. Expired items are purged
+after a month by `deleteExpiredTrashedRecordings`, called once per day from `MainActivity`.
 
 ### UI structure — "fragments" that are not Fragments
 
 `MainActivity` hosts a `ViewPager` with a plain `PagerAdapter` (`ViewPagerAdapter`). Each page is a
-**custom `ConstraintLayout`** subclassing `MyViewPagerFragment` (`RecorderFragment`, `PlayerFragment`,
-`TrashFragment`), inflated from `R.layout.fragment_*`. Consequences:
+**custom `ConstraintLayout`** subclassing `MyViewPagerFragment` (`RecordingsFragment`, `TrashFragment`),
+inflated from `R.layout.fragment_*`. Consequences:
 
 - No Fragment lifecycle. `MainActivity` manually forwards `onResume`/`onDestroy` through the adapter,
   and the views use `onFinishInflate` (bind view binding) and `onAttachedToWindow` (register EventBus).
 - Adding a page means editing `ViewPagerAdapter.instantiateItem`, `getCount`, and the tab setup in
-  `MainActivity.setupViewPager`. The recycle-bin tab is conditional on `config.useRecycleBin`, and the
-  pager is rebuilt in `onResume` when that setting changes.
-- Page indices are hardcoded (0 recorder, 1 player, 2 trash) in the adapter and in search/actmode
-  forwarding.
+  `MainActivity.setupViewPager`. The pager is a fixed 2-tab pager (`getCount()` always `2`).
+- Page indices are hardcoded (0 recordings, 1 trash) in the adapter and in search/actmode forwarding.
 
-Playback lives in `PlayerFragment` with a directly-managed `MediaPlayer`, plus a
-`BecomingNoisyReceiver` to pause when headphones are unplugged.
+`RecordingsFragment` combines the recorder controls and the recordings list (recorder + player merged
+into one screen), with inline per-row play/pause via `RecordingsAdapter.updateCurrentRecording`.
+Playback is a directly-managed `MediaPlayer` owned by `RecordingsFragment`.
 
 ### Other entry points
 
-- `SplashActivity` → `MainActivity`. Themed launcher icons are 19 `activity-alias` entries on
-  `SplashActivity` toggled by commons' customization screen; the list is mirrored in
-  `SimpleActivity.getAppIconIDs()`.
-- `MainActivity` also handles the third-party `MediaStore.Audio.Media.RECORD_SOUND_ACTION` intent,
-  returning the recording URI via the `Events.RecordingSaved` subscriber.
+- `SplashActivity` → `MainActivity`. Single launcher icon (no themed-icon activity-aliases).
 - Home-screen widget: `MyWidgetRecordDisplayProvider` + `BackgroundRecordActivity`, an invisible
   activity (`AppTheme.NoDisplay`) that exists only to request the notification permission before
   toggling the service, then `moveTaskToBack`.
@@ -129,15 +120,9 @@ Adding a setting = key in `Constants.kt` + property in `Config.kt` + row in `Set
 
 ## Build variants
 
-Three flavors on the `variants` dimension, differing only in `res/values/bools.xml`:
-
-- `core` — no overrides (uses commons defaults).
-- `foss` — `hide_google_relations = true`, donate link shown.
-- `gplay` — Google relations visible, no donate link.
-
-Debug builds get `applicationIdSuffix = ".debug"`. Release is minified + resource-shrunk and signed
-from either `keystore.properties` (see `keystore.properties_sample`) or `SIGNING_*` env vars;
-unsigned if neither is present.
+Single build variant (no product flavors). Debug builds get `applicationIdSuffix = ".debug"`. Release
+is minified + resource-shrunk and signed from either `keystore.properties` (see
+`keystore.properties_sample`) or `SIGNING_*` env vars; unsigned if neither is present.
 
 ## Repo conventions
 

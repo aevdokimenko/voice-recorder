@@ -63,6 +63,8 @@ class TrashFragment(
 
     override fun playRecording(recording: Recording, playOnPrepared: Boolean) {}
 
+    override fun stopPlaybackOf(recordingId: Int) {}
+
     override fun onLoadingStart() {
         if (itemsIgnoringSearch.isEmpty()) {
             binding.loadingIndicator.show()

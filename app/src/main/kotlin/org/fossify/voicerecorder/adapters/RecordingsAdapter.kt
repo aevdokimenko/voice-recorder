@@ -182,6 +182,10 @@ class RecordingsAdapter(
         recordingsToRemove: ArrayList<Recording>,
         positions: ArrayList<Int>
     ) {
+        if (recordingsToRemove.any { it.id == currRecordingId }) {
+            refreshListener.stopPlaybackOf(currRecordingId)
+        }
+
         recordings.removeAll(recordingsToRemove.toSet())
         activity.runOnUiThread {
             if (recordings.isEmpty()) {

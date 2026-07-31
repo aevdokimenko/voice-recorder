@@ -6,4 +6,6 @@ interface RefreshRecordingsListener {
     fun refreshRecordings()
 
     fun playRecording(recording: Recording, playOnPrepared: Boolean)
+
+    fun stopPlaybackOf(recordingId: Int)
 }

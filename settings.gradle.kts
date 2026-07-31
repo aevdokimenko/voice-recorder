@@ -14,5 +14,5 @@ dependencyResolutionManagement {
         mavenLocal()
     }
 }
-rootProject.name = "Voice-Recorder"
+rootProject.name = "LR"
 include(":app")

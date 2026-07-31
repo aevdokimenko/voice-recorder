@@ -34,7 +34,7 @@
 **Interfaces:**
 - Produces: applicationId `ai.lequipe.lr` used by all later tasks; app display name "LR" used by Task 13's About text.
 
-- [ ] **Step 1: Update the package id and version in `gradle.properties`**
+- [x] **Step 1: Update the package id and version in `gradle.properties`**
 
 ```properties
 # Versioning
@@ -43,7 +43,12 @@ VERSION_CODE=1
 APP_ID=ai.lequipe.lr
 ```
 
-- [ ] **Step 2: Update the archives name in `app/build.gradle.kts`**
+- [x] **Step 2: Update the archives name in `app/build.gradle.kts`**
+
+Note: `namespace` at `app/build.gradle.kts:116` was also decoupled from `APP_ID` (hardcoded to
+`org.fossify.voicerecorder`) — it was previously `namespace = project.property("APP_ID").toString()`,
+and since the plan keeps all Kotlin sources under the `org.fossify.voicerecorder` package throughout,
+changing `APP_ID` alone broke implicit `R` resolution across most files.
 
 ```kotlin
 base {
@@ -52,7 +57,7 @@ base {
 }
 ```
 
-- [ ] **Step 3: Rebrand the non-translatable app name / package name strings**
+- [x] **Step 3: Rebrand the non-translatable app name / package name strings**
 
 Edit `app/src/main/res/values/donottranslate.xml`:
 
@@ -72,13 +77,13 @@ Edit `app/src/main/res/values/donottranslate.xml`:
 
 (The `mp3*` and `bitrate_value`/`sampling_rate_value` entries are cleaned up in Tasks 7 and 9 — leave them for now so this step is a pure rename.)
 
-- [ ] **Step 4: Rebrand the launcher name in `app/src/main/res/values/strings.xml`**
+- [x] **Step 4: Rebrand the launcher name in `app/src/main/res/values/strings.xml`**
 
 ```xml
     <string name="app_launcher_name">LR</string>
 ```
 
-- [ ] **Step 5: Rename the Gradle root project**
+- [x] **Step 5: Rename the Gradle root project**
 
 Edit `settings.gradle.kts` line 16:
 
@@ -86,11 +91,11 @@ Edit `settings.gradle.kts` line 16:
 rootProject.name = "LR"
 ```
 
-- [ ] **Step 6: Update CLAUDE.md's project/commands references**
+- [x] **Step 6: Update CLAUDE.md's project/commands references**
 
 Edit `CLAUDE.md`: change `package org.fossify.voicerecorder` to `package ai.lequipe.lr` in the Project section, and change the flavor-suffixed Gradle command examples (`assembleCoreDebug`, `installCoreDebug`) to unsuffixed ones (`assembleDebug`, `installDebug`) — the flavor dimension is removed in Task 2, so those examples become wrong otherwise.
 
-- [ ] **Step 7: Build and verify the new identifiers took effect**
+- [x] **Step 7: Build and verify the new identifiers took effect**
 
 Run: `./gradlew assembleDebug` (requires JDK 17 on `PATH`/`JAVA_HOME` per `CLAUDE.md`)
 Expected: build succeeds; `app/build/outputs/apk/debug/app-debug.apk` exists.
@@ -98,7 +103,14 @@ Expected: build succeeds; `app/build/outputs/apk/debug/app-debug.apk` exists.
 Run: `unzip -p app/build/outputs/apk/debug/app-debug.apk AndroidManifest.xml | strings | grep -i "ai.lequipe.lr"`
 Expected: the new package id appears in the built manifest.
 
-- [ ] **Step 8: Commit**
+Note: the three build flavors (`core`/`foss`/`gplay`, removed in Task 2) still existed at this point,
+so outputs landed at `app/build/outputs/apk/<flavor>/debug/lr-1-<flavor>-debug.apk` rather than the
+plan's single-flavor path. `aapt dump badging` on the `core` debug APK confirmed
+`package: name='ai.lequipe.lr.debug' versionCode='1' versionName='1.0.0'` (`strings | grep` on the raw
+binary manifest XML doesn't reliably find the UTF-16-encoded package string, so `aapt dump badging` was
+used instead). `detekt` was also run and passed clean.
+
+- [x] **Step 8: Commit**
 
 ```bash
 git add gradle.properties app/build.gradle.kts app/src/main/res/values/donottranslate.xml \

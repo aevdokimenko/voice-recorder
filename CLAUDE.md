@@ -5,15 +5,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project
 
 Fossify Voice Recorder — an Android voice recorder app (Kotlin, XML layouts + view binding, no Compose).
-Single Gradle module `:app`, package `org.fossify.voicerecorder`. Java 17, minSdk 26, compileSdk 36.
+Single Gradle module `:app`, package `ai.lequipe.lr`. Java 17, minSdk 26, compileSdk 36.
 
 ## Commands
 
 Requires a JDK 17 on `PATH` (`JAVA_HOME`). All commands use the Gradle wrapper.
 
 ```bash
-./gradlew assembleCoreDebug          # build a debug APK (flavor: core | foss | gplay)
-./gradlew installCoreDebug           # build + install on a connected device
+./gradlew assembleDebug              # build a debug APK
+./gradlew installDebug               # build + install on a connected device
 ./gradlew detekt                     # static analysis (must pass: maxIssues = 0)
 ./gradlew lint                       # Android lint (release builds are excluded via checkReleaseBuilds = false)
 ./gradlew detektBaseline             # regenerate app/detekt-baseline.xml

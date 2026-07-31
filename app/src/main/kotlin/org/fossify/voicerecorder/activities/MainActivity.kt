@@ -68,14 +68,6 @@ class MainActivity : SimpleActivity() {
 
         bus = EventBus.getDefault()
         bus!!.register(this)
-        if (config.recordAfterLaunch && !RecorderService.isRunning) {
-            Intent(this@MainActivity, RecorderService::class.java).apply {
-                try {
-                    startService(this)
-                } catch (ignored: Exception) {
-                }
-            }
-        }
     }
 
     override fun onResume() {

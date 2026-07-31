@@ -26,17 +26,6 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getInt(MICROPHONE_MODE, MediaRecorder.AudioSource.DEFAULT)
         set(audioSource) = prefs.edit { putInt(MICROPHONE_MODE, audioSource) }
 
-    fun getMicrophoneModeText(mode: Int) = context.getString(
-        when (mode) {
-            MediaRecorder.AudioSource.CAMCORDER -> R.string.microphone_mode_camcorder
-            MediaRecorder.AudioSource.VOICE_COMMUNICATION -> R.string.microphone_mode_voice_communication
-            MediaRecorder.AudioSource.VOICE_PERFORMANCE -> R.string.microphone_mode_voice_performance
-            MediaRecorder.AudioSource.VOICE_RECOGNITION -> R.string.microphone_mode_voice_recognition
-            MediaRecorder.AudioSource.UNPROCESSED -> R.string.microphone_mode_unprocessed
-            else -> org.fossify.commons.R.string.system_default
-        }
-    )
-
     var bitrate: Int
         get() = prefs.getInt(BITRATE, DEFAULT_BITRATE)
         set(bitrate) = prefs.edit().putInt(BITRATE, bitrate).apply()
@@ -44,11 +33,6 @@ class Config(context: Context) : BaseConfig(context) {
     var samplingRate: Int
         get() = prefs.getInt(SAMPLING_RATE, DEFAULT_SAMPLING_RATE)
         set(samplingRate) = prefs.edit().putInt(SAMPLING_RATE, samplingRate).apply()
-
-    var recordAfterLaunch: Boolean
-        get() = prefs.getBoolean(RECORD_AFTER_LAUNCH, false)
-        set(recordAfterLaunch) = prefs.edit().putBoolean(RECORD_AFTER_LAUNCH, recordAfterLaunch)
-            .apply()
 
     fun getExtension() = context.getString(
         when (extension) {
@@ -81,10 +65,4 @@ class Config(context: Context) : BaseConfig(context) {
     var keepScreenOn: Boolean
         get() = prefs.getBoolean(KEEP_SCREEN_ON, true)
         set(keepScreenOn) = prefs.edit().putBoolean(KEEP_SCREEN_ON, keepScreenOn).apply()
-
-    var wasMicModeWarningShown: Boolean
-        get() = prefs.getBoolean(WAS_MIC_MODE_WARNING_SHOWN, false)
-        set(wasMicModeWarningShown) = prefs.edit {
-            putBoolean(WAS_MIC_MODE_WARNING_SHOWN, wasMicModeWarningShown)
-        }
 }

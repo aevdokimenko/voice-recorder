@@ -920,7 +920,7 @@ git commit -m "feat: fix recording filenames to yyyyMMdd_HHmmss, remove pattern 
 - Consumes: `RecorderService`/`MediaRecorderWrapper` still read `config.microphoneMode`/`config.bitrate`/`config.samplingRate`/`config.extension` directly (unchanged) — this task removes only the **UI** for changing them; the properties stay at their existing defaults (`EXTENSION_M4A`, `DEFAULT_BITRATE`, `DEFAULT_SAMPLING_RATE`, `MediaRecorder.AudioSource.DEFAULT`) until a later plan (endpoint enrollment) starts writing server-provided values into them.
 - Produces: Settings screen left with only: save-recordings-folder, keep-screen-on, use-english/language/date-time-format (untouched, out of scope), About link.
 
-- [ ] **Step 1: Remove the microphone-mode picker**
+- [x] **Step 1: Remove the microphone-mode picker**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.kt`: remove `setupMicrophoneMode()` from `onResume()`, delete `setupMicrophoneMode()` and `showMicrophoneModeDialog()` and `getMediaRecorderAudioSources()` methods, remove the `import android.media.MediaRecorder` if nothing else uses it.
 
@@ -928,13 +928,13 @@ Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt`: delete `
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Constants.kt`: delete line 104 (`const val WAS_MIC_MODE_WARNING_SHOWN = "was_mic_mode_warning_shown"`). Keep line 97 (`MICROPHONE_MODE`).
 
-- [ ] **Step 2: Remove the extension/bitrate/sample-rate pickers**
+- [x] **Step 2: Remove the extension/bitrate/sample-rate pickers**
 
 Edit `SettingsActivity.kt`: remove `setupExtension()`, `setupBitrate()`, `getBitrateText()`, `adjustBitrate()`, `setupSamplingRate()`, `getSamplingRateText()`, `getSamplingRatesArray()`, `adjustSamplingRate()` and their call sites in `onResume()`. Remove the now-unused imports (`RadioGroupDialog`, `RadioItem`, `BITRATES`, `DEFAULT_BITRATE`, `DEFAULT_SAMPLING_RATE`, `EXTENSION_M4A`, `EXTENSION_MP3`, `EXTENSION_OGG`, `SAMPLING_RATES`, `SAMPLING_RATE_BITRATE_LIMITS`, `kotlin.math.abs`, `isQPlus` if unused elsewhere in the file — check with a grep first).
 
 Keep `Config.extension`/`bitrate`/`samplingRate` properties and `Config.getExtension()`/`getOutputFormat()`/`getAudioEncoder()` untouched — `RecorderService` still needs them.
 
-- [ ] **Step 3: Remove "record after launch"**
+- [x] **Step 3: Remove "record after launch"**
 
 Edit `SettingsActivity.kt`: remove `setupRecordAfterLaunch()` and its call site.
 
@@ -952,13 +952,13 @@ Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`,
 
 (replacing the `if (config.recordAfterLaunch && !RecorderService.isRunning) { ... }` block — nothing can set this to `true` anymore once the toggle is gone, so the block is dead code, and this matches the design spec's final Settings screen not listing "record after launch" as something that survives).
 
-- [ ] **Step 4: Remove the recycle-bin toggle and the empty-recycle-bin row from Settings**
+- [x] **Step 4: Remove the recycle-bin toggle and the empty-recycle-bin row from Settings**
 
 Edit `SettingsActivity.kt`: remove `setupUseRecycleBin()`, `updateRecycleBinButtons()`, `setupEmptyRecycleBin()` and their call sites, `recycleBinContentSize` field, and the `settingsRecycleBinLabel` entry from the color-tinting array. Remove now-unused imports (`ConfirmationDialog` may still be used elsewhere in the file — check before removing; `deleteTrashedRecordings`, `getAllRecordings`, `hasRecordings`/`formatSize`/`sumByInt` if unused, `Events`, `EventBus`).
 
 (Recycle-bin-toggle removal from `Config`/`Constants` and the Recording adapters happens in Task 10, since it touches `RecordingsAdapter`/`DeleteConfirmationDialog` too — this step only removes the Settings-screen surface.)
 
-- [ ] **Step 4b: Confirm the final `onResume()` after all of Steps 1-4 (plus Task 3/4's earlier removals)**
+- [x] **Step 4b: Confirm the final `onResume()` after all of Steps 1-4 (plus Task 3/4's earlier removals)**
 
 After every `setupX()` removed across Tasks 3, 4, and this task's Steps 1-4, `SettingsActivity.onResume()` should read exactly:
 
@@ -980,13 +980,13 @@ After every `setupX()` removed across Tasks 3, 4, and this task's Steps 1-4, `Se
 
 (The `arrayOf(...).forEach { it.setTextColor(...) }` block collapses to a single line since `settingsColorCustomizationSectionLabel`, `settingsRecordingSectionLabel`, `settingsAudioSectionLabel`, and `settingsRecycleBinLabel` are all gone from the layout by this point — only `settingsGeneralSettingsLabel` remains.)
 
-- [ ] **Step 5: Trim `activity_settings.xml` to match**
+- [x] **Step 5: Trim `activity_settings.xml` to match**
 
 Edit `app/src/main/res/layout/activity_settings.xml`: delete the entire "Recording" section (`settings_recording_section_label` through `settings_recording_divider`, i.e. filename-pattern and extension rows), the entire "Audio" section (`settings_audio_section_label` through `settings_audio_divider`, i.e. bitrate/sample-rate/microphone-mode rows), the `settings_record_after_launch_holder` row, and the entire "Recycle bin" section (`settings_recycle_bin_label` through `settings_empty_recycle_bin_holder`). Remove `settings_recording_section_label`, `settings_audio_section_label`, `settings_recycle_bin_label` from `SettingsActivity`'s color-tinting array (already partly done in earlier steps — confirm all three are gone).
 
 What remains in the file: the "General settings" section (use-english, language, change-date-time-format — untouched) and the `settings_keep_screen_on_holder` / `settings_save_recordings_holder` rows.
 
-- [ ] **Step 6: Build and verify**
+- [x] **Step 6: Build and verify**
 
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed.
@@ -994,9 +994,11 @@ Expected: both succeed.
 Run: `grep -rn "microphoneMode\b\|EXTENSION_MP3\|filenamePattern\|recordAfterLaunch\|useRecycleBin" app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.kt`
 Expected: no matches (all UI for these is gone; `useRecycleBin` reads elsewhere are handled in Task 10).
 
-Manually open Settings and confirm only "Save recordings in", "Keep screen on", language/date-time rows, and the toolbar's back arrow remain.
+Note: both `assembleDebug` and `detekt` passed clean (JDK 17 via `/opt/homebrew/opt/openjdk@17`), and the
+grep returned no matches. Manually opening Settings on-device to visually confirm the remaining rows
+(skipped - not automatable): no adb or connected device/emulator is available in this environment.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.kt \

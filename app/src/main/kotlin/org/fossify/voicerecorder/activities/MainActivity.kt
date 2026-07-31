@@ -14,7 +14,6 @@ import org.fossify.commons.extensions.onPageChangeListener
 import org.fossify.commons.extensions.onTabSelectionChanged
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.extensions.updateBottomTabItemColors
-import org.fossify.commons.helpers.LICENSE_ANDROID_LAME
 import org.fossify.commons.helpers.LICENSE_AUDIO_RECORD_VIEW
 import org.fossify.commons.helpers.LICENSE_AUTOFITTEXTVIEW
 import org.fossify.commons.helpers.LICENSE_EVENT_BUS
@@ -253,7 +252,6 @@ class MainActivity : SimpleActivity() {
     private fun launchAbout() {
         val licenses = LICENSE_EVENT_BUS or
                 LICENSE_AUDIO_RECORD_VIEW or
-                LICENSE_ANDROID_LAME or
                 LICENSE_AUTOFITTEXTVIEW
 
         val faqItems = arrayListOf(

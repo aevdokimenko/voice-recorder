@@ -32,7 +32,6 @@ import org.fossify.voicerecorder.extensions.config
 import org.fossify.voicerecorder.extensions.getFormattedFilename
 import org.fossify.voicerecorder.extensions.updateWidgets
 import org.fossify.voicerecorder.helpers.CANCEL_RECORDING
-import org.fossify.voicerecorder.helpers.EXTENSION_MP3
 import org.fossify.voicerecorder.helpers.GET_RECORDER_INFO
 import org.fossify.voicerecorder.helpers.RECORDER_RUNNING_NOTIF_ID
 import org.fossify.voicerecorder.helpers.RECORDING_PAUSED
@@ -42,7 +41,6 @@ import org.fossify.voicerecorder.helpers.STOP_AMPLITUDE_UPDATE
 import org.fossify.voicerecorder.helpers.TOGGLE_PAUSE
 import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.recorder.MediaRecorderWrapper
-import org.fossify.voicerecorder.recorder.Mp3Recorder
 import org.fossify.voicerecorder.recorder.Recorder
 import org.greenrobot.eventbus.EventBus
 import java.io.File
@@ -108,11 +106,7 @@ class RecorderService : Service() {
         resultUri = null
 
         try {
-            recorder = if (recordMp3()) {
-                Mp3Recorder(this)
-            } else {
-                MediaRecorderWrapper(this)
-            }
+            recorder = MediaRecorderWrapper(this)
 
             if (isRPlus()) {
                 val fileUri = createDocumentUriUsingFirstParentTreeUri(recordingPath)
@@ -324,9 +318,5 @@ class RecorderService : Service() {
 
     private fun broadcastStatus() {
         EventBus.getDefault().post(Events.RecordingStatus(status))
-    }
-
-    private fun recordMp3(): Boolean {
-        return config.extension == EXTENSION_MP3
     }
 }

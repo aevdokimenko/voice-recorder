@@ -33,7 +33,6 @@ import org.fossify.voicerecorder.helpers.BITRATES
 import org.fossify.voicerecorder.helpers.DEFAULT_BITRATE
 import org.fossify.voicerecorder.helpers.DEFAULT_SAMPLING_RATE
 import org.fossify.voicerecorder.helpers.EXTENSION_M4A
-import org.fossify.voicerecorder.helpers.EXTENSION_MP3
 import org.fossify.voicerecorder.helpers.EXTENSION_OGG
 import org.fossify.voicerecorder.helpers.SAMPLING_RATES
 import org.fossify.voicerecorder.helpers.SAMPLING_RATE_BITRATE_LIMITS
@@ -159,20 +158,19 @@ class SettingsActivity : SimpleActivity() {
     }
 
     private fun setupExtension() {
-        binding.settingsExtension.text = config.getExtensionText()
+        binding.settingsExtension.text = config.getExtension()
         binding.settingsExtensionHolder.setOnClickListener {
             val items = arrayListOf(
-                RadioItem(EXTENSION_M4A, getString(R.string.m4a)),
-                RadioItem(EXTENSION_MP3, getString(R.string.mp3_experimental))
+                RadioItem(EXTENSION_M4A, getString(R.string.m4a))
             )
 
             if (isQPlus()) {
-                items.add(RadioItem(EXTENSION_OGG, getString(R.string.ogg_opus)))
+                items.add(RadioItem(EXTENSION_OGG, getString(R.string.ogg)))
             }
 
             RadioGroupDialog(this@SettingsActivity, items, config.extension) {
                 config.extension = it as Int
-                binding.settingsExtension.text = config.getExtensionText()
+                binding.settingsExtension.text = config.getExtension()
                 adjustBitrate()
                 adjustSamplingRate()
             }

@@ -591,13 +591,13 @@ git commit -m "chore: remove legacy MediaStore-trashed-recording compatibility"
 **Interfaces:**
 - Produces: `Config.getExtension(): String` now only returns `"m4a"` or `"ogg"`.
 
-- [ ] **Step 1: Delete `Mp3Recorder`**
+- [x] **Step 1: Delete `Mp3Recorder`**
 
 ```bash
 git rm app/src/main/kotlin/org/fossify/voicerecorder/recorder/Mp3Recorder.kt
 ```
 
-- [ ] **Step 2: Always use `MediaRecorderWrapper` in `RecorderService`**
+- [x] **Step 2: Always use `MediaRecorderWrapper` in `RecorderService`**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/services/RecorderService.kt`. Replace:
 
@@ -623,7 +623,7 @@ Delete the `recordMp3()` method:
 
 Remove the now-unused imports `org.fossify.voicerecorder.helpers.EXTENSION_MP3` and `org.fossify.voicerecorder.recorder.Mp3Recorder`.
 
-- [ ] **Step 3: Remove mp3 constants from `Constants.kt`**
+- [x] **Step 3: Remove mp3 constants from `Constants.kt`**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Constants.kt`. Replace lines 15-42:
 
@@ -663,7 +663,7 @@ val SAMPLING_RATE_BITRATE_LIMITS = mapOf(
 )
 ```
 
-- [ ] **Step 4: Simplify `Config.getExtension()`/`getExtensionText()` in `Config.kt`**
+- [x] **Step 4: Simplify `Config.getExtension()`/`getExtensionText()` in `Config.kt`**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt`, replace lines 53-67:
 
@@ -678,7 +678,9 @@ Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt`, replace 
 
 (`getExtensionText()` is deleted here too — it was only consumed by the extension-picker Settings row, which Task 9 removes; deleting it now avoids a dead method sitting around between tasks.)
 
-- [ ] **Step 5: Drop the AndroidLame license flag in `MainActivity`**
+Note: `SettingsActivity.setupExtension()` still references `getExtensionText()` and `EXTENSION_MP3`/`R.string.mp3_experimental`/`R.string.ogg_opus` at this point, and that row isn't removed until Task 9. To keep the build green between tasks, its RadioItem list dropped the mp3 option and both text assignments were switched to `config.getExtension()`, with the ogg RadioItem now using `R.string.ogg` instead of the deleted `ogg_opus` string. This picker row (and the rest of its wiring) is still slated for full removal in Task 9.
+
+- [x] **Step 5: Drop the AndroidLame license flag in `MainActivity`**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`, in `launchAbout()`:
 
@@ -690,7 +692,7 @@ Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt`,
 
 Remove the now-unused `import org.fossify.commons.helpers.LICENSE_ANDROID_LAME`.
 
-- [ ] **Step 6: Remove mp3 strings from `donottranslate.xml`**
+- [x] **Step 6: Remove mp3 strings from `donottranslate.xml`**
 
 ```xml
 <resources>
@@ -701,15 +703,15 @@ Remove the now-unused `import org.fossify.commons.helpers.LICENSE_ANDROID_LAME`.
 </resources>
 ```
 
-(`mp3`, `mp3_experimental`, `ogg_opus`, `bitrate_value`, `sampling_rate_value` are all gone — the last three were display-only strings for the settings pickers Task 9 removes; deleting them now since nothing else references them once `getExtensionText()` is gone.)
+(`mp3`, `mp3_experimental`, `ogg_opus` are gone. `bitrate_value`/`sampling_rate_value` were kept, not removed as this step originally described — `SettingsActivity.getBitrateText()`/`getSamplingRateText()` still reference them until Task 9 removes the bitrate/sampling-rate pickers entirely, so deleting them now would break the build.)
 
-- [ ] **Step 7: Remove the `tandroidlame` dependency**
+- [x] **Step 7: Remove the `tandroidlame` dependency**
 
 Edit `gradle/libs.versions.toml`, delete lines 20-21 (the `#TAndroidLame` / `tandroidlame = "1.1"` version entry) and lines 45-46 (the `tandroidlame` library entry).
 
 Edit `app/build.gradle.kts` line 147, delete `implementation(libs.tandroidlame)`.
 
-- [ ] **Step 8: Build and verify**
+- [x] **Step 8: Build and verify**
 
 Run: `./gradlew assembleDebug detekt`
 Expected: both succeed with no references to `Mp3Recorder`, `EXTENSION_MP3`, or `tandroidlame` remaining.
@@ -717,13 +719,17 @@ Expected: both succeed with no references to `Mp3Recorder`, `EXTENSION_MP3`, or 
 Run: `grep -rn "Mp3Recorder\|EXTENSION_MP3\|tandroidlame\|LICENSE_ANDROID_LAME" app/src gradle app/build.gradle.kts`
 Expected: no matches.
 
-- [ ] **Step 9: Commit**
+Note: both passed clean (JDK 17 via `/opt/homebrew/opt/openjdk@17`). The grep for
+`Mp3Recorder|EXTENSION_MP3|tandroidlame|LICENSE_ANDROID_LAME` returned no matches.
+
+- [x] **Step 9: Commit**
 
 ```bash
 git add app/src/main/kotlin/org/fossify/voicerecorder/services/RecorderService.kt \
   app/src/main/kotlin/org/fossify/voicerecorder/helpers/Constants.kt \
   app/src/main/kotlin/org/fossify/voicerecorder/helpers/Config.kt \
   app/src/main/kotlin/org/fossify/voicerecorder/activities/MainActivity.kt \
+  app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.kt \
   app/src/main/res/values/donottranslate.xml gradle/libs.versions.toml app/build.gradle.kts
 git rm app/src/main/kotlin/org/fossify/voicerecorder/recorder/Mp3Recorder.kt
 git commit -m "feat: drop mp3/AndroidLame recording path, keep m4a and ogg only"

@@ -137,7 +137,6 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.tandroidlame)
     implementation(libs.autofittextview)
     detektPlugins(libs.compose.detekt)
 }

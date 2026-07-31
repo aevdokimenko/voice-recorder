@@ -306,14 +306,14 @@ git commit -m "chore: remove themed launcher icons and color-customization scree
 **Interfaces:**
 - Produces: the widget still starts/stops recording and shows a fixed accent color while recording (no longer user-configurable).
 
-- [ ] **Step 1: Delete the widget configure activity and its layout**
+- [x] **Step 1: Delete the widget configure activity and its layout**
 
 ```bash
 git rm app/src/main/kotlin/org/fossify/voicerecorder/activities/WidgetRecordDisplayConfigureActivity.kt
 git rm app/src/main/res/layout/widget_record_display_config.xml
 ```
 
-- [ ] **Step 2: Remove the configure-activity manifest entry and the widget's `configure` attribute**
+- [x] **Step 2: Remove the configure-activity manifest entry and the widget's `configure` attribute**
 
 Edit `app/src/main/AndroidManifest.xml`, delete the `WidgetRecordDisplayConfigureActivity` `<activity>` block (lines 37-46).
 
@@ -329,7 +329,7 @@ Edit `app/src/main/res/xml/widget_record_display.xml`, drop `android:configure`:
     android:updatePeriodMillis="86400000" />
 ```
 
-- [ ] **Step 3: Replace the customizable widget color with a fixed accent color**
+- [x] **Step 3: Replace the customizable widget color with a fixed accent color**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/helpers/MyWidgetRecordDisplayProvider.kt`:
 
@@ -420,18 +420,22 @@ class MyWidgetRecordDisplayProvider : AppWidgetProvider() {
 
 (`RECORDING_COLOR` is a literal ARGB constant, so it needs `@Suppress("MagicNumber")` per detekt's rules — add `@file:Suppress("MagicNumber")` at the top of the file, above the `package` line.)
 
-- [ ] **Step 4: Remove the widget-color-customization row and the purchase-thank-you row from Settings**
+- [x] **Step 4: Remove the widget-color-customization row and the purchase-thank-you row from Settings**
 
 Edit `app/src/main/kotlin/org/fossify/voicerecorder/activities/SettingsActivity.kt`: remove the `setupCustomizeWidgetColors()` call from `onResume()` (line 66) and delete the method (lines 99-106). Remove the now-unused `IS_CUSTOMIZING_COLORS` import and the `WidgetRecordDisplayConfigureActivity` reference is gone along with it.
 
 Edit `app/src/main/res/layout/activity_settings.xml`: delete the `settings_widget_color_customization_holder` `<ConstraintLayout>` block, and delete the `settings_purchase_thank_you_holder` `<org.fossify.commons.views.PurchaseThankYouItem>` row (it existed only to unlock the widget-color feature we just removed).
 
-- [ ] **Step 5: Build and manually verify the widget**
+- [x] **Step 5: Build and manually verify the widget**
 
 Run: `./gradlew installDebug`
 Expected: build succeeds. Manually add the LR widget to a home screen, tap it to start a recording (should turn red), tap again to stop (should turn white) — no color-picker screen should appear anywhere.
 
-- [ ] **Step 6: Commit**
+Note: `./gradlew assembleDebug detekt` both passed clean. `installDebug`/on-device widget
+verification (skipped - not automatable): no adb or connected device/emulator available in this
+environment.
+
+- [x] **Step 6: Commit**
 
 ```bash
 git add app/src/main/AndroidManifest.xml app/src/main/res/xml/widget_record_display.xml \

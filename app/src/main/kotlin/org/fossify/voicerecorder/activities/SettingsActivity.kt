@@ -1,6 +1,5 @@
 package org.fossify.voicerecorder.activities
 
-import android.content.Intent
 import android.media.MediaRecorder
 import android.os.Bundle
 import org.fossify.commons.dialogs.ChangeDateTimeFormatDialog
@@ -15,7 +14,6 @@ import org.fossify.commons.extensions.getProperPrimaryColor
 import org.fossify.commons.extensions.humanizePath
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.extensions.updateTextColors
-import org.fossify.commons.helpers.IS_CUSTOMIZING_COLORS
 import org.fossify.commons.helpers.NavigationIcon
 import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.commons.helpers.isQPlus
@@ -62,7 +60,6 @@ class SettingsActivity : SimpleActivity() {
         super.onResume()
         setupTopAppBar(binding.settingsAppbar, NavigationIcon.Arrow)
 
-        setupCustomizeWidgetColors()
         setupUseEnglish()
         setupLanguage()
         setupChangeDateTimeFormat()
@@ -85,15 +82,6 @@ class SettingsActivity : SimpleActivity() {
             binding.settingsRecycleBinLabel
         ).forEach {
             it.setTextColor(getProperPrimaryColor())
-        }
-    }
-
-    private fun setupCustomizeWidgetColors() {
-        binding.settingsWidgetColorCustomizationHolder.setOnClickListener {
-            Intent(this, WidgetRecordDisplayConfigureActivity::class.java).apply {
-                putExtra(IS_CUSTOMIZING_COLORS, true)
-                startActivity(this)
-            }
         }
     }
 

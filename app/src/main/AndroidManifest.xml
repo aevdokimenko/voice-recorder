@@ -34,17 +34,6 @@
         tools:ignore="UnusedAttribute"
         tools:replace="android:label">
 
-        <activity
-            android:name=".activities.WidgetRecordDisplayConfigureActivity"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/MyWidgetConfigTheme"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
-
         <receiver
             android:name=".helpers.MyWidgetRecordDisplayProvider"
             android:exported="true"

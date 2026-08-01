@@ -26,6 +26,7 @@ import org.fossify.commons.extensions.internalStoragePath
 import org.fossify.commons.extensions.isAudioFast
 import org.fossify.commons.helpers.isQPlus
 import org.fossify.commons.helpers.isRPlus
+import org.fossify.commons.helpers.isSPlus
 import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.helpers.Config
 import org.fossify.voicerecorder.helpers.DEFAULT_RECORDINGS_FOLDER
@@ -83,10 +84,13 @@ fun Context.getDefaultRecordingsFolder(): String {
 }
 
 fun Context.getDefaultRecordingsRelativePath(): String {
-    return if (isQPlus()) {
-        "${Environment.DIRECTORY_MUSIC}/$DEFAULT_RECORDINGS_FOLDER"
-    } else {
-        getString(R.string.app_name)
+    // The in-app folder picker can't create directories under scoped storage, so the default must
+    // be a folder the system already provides. Android 12+ ships a top-level "Recordings" dir;
+    // older versions fall back to Music/Recordings.
+    return when {
+        isSPlus() -> Environment.DIRECTORY_RECORDINGS
+        isQPlus() -> "${Environment.DIRECTORY_MUSIC}/$DEFAULT_RECORDINGS_FOLDER"
+        else -> getString(R.string.app_name)
     }
 }
 

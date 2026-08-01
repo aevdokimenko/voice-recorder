@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import me.grantland.widget.AutofitHelper
 import org.fossify.commons.extensions.appLaunched
-import org.fossify.commons.extensions.checkAppSideloading
 import org.fossify.commons.extensions.getBottomNavigationBackgroundColor
 import org.fossify.commons.extensions.hideKeyboard
 import org.fossify.commons.extensions.onPageChangeListener
@@ -48,10 +47,6 @@ class MainActivity : SimpleActivity() {
         setupOptionsMenu()
 
         setupEdgeToEdge(padBottomImeAndSystem = listOf(binding.mainTabsHolder))
-
-        if (checkAppSideloading()) {
-            return
-        }
 
         if (savedInstanceState == null) {
             deleteExpiredTrashedRecordings()

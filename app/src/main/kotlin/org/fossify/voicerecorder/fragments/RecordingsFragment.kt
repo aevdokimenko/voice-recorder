@@ -28,7 +28,6 @@ import org.fossify.commons.extensions.setDebouncedClickListener
 import org.fossify.commons.extensions.showErrorToast
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.extensions.updateTextColors
-import org.fossify.commons.helpers.isQPlus
 import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.activities.SimpleActivity
 import org.fossify.voicerecorder.adapters.RecordingsAdapter
@@ -163,11 +162,7 @@ class RecordingsFragment(
         binding.recordingsFastscroller.beVisibleIf(recordings.isNotEmpty())
         if (recordings.isEmpty()) {
             val stringId = if (lastSearchQuery.isEmpty()) {
-                if (isQPlus()) {
-                    R.string.no_recordings_found
-                } else {
-                    R.string.no_recordings_in_folder_found
-                }
+                R.string.no_recordings_found
             } else {
                 org.fossify.commons.R.string.no_items_found
             }

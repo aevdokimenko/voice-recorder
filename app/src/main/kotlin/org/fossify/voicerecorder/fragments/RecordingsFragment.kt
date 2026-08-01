@@ -34,7 +34,6 @@ import org.fossify.voicerecorder.activities.SimpleActivity
 import org.fossify.voicerecorder.adapters.RecordingsAdapter
 import org.fossify.voicerecorder.databinding.FragmentRecordingsBinding
 import org.fossify.voicerecorder.extensions.config
-import org.fossify.voicerecorder.extensions.ensureStoragePermission
 import org.fossify.voicerecorder.extensions.setKeepScreenAwake
 import org.fossify.voicerecorder.helpers.CANCEL_RECORDING
 import org.fossify.voicerecorder.helpers.GET_RECORDER_INFO
@@ -68,7 +67,6 @@ class RecordingsFragment(
     private var player: MediaPlayer? = null
     private var itemsIgnoringSearch = ArrayList<Recording>()
     private var lastSearchQuery = ""
-    private var prevSavePath = ""
     private lateinit var binding: FragmentRecordingsBinding
 
     override fun onFinishInflate() {
@@ -82,13 +80,7 @@ class RecordingsFragment(
             status = RECORDING_STOPPED
         }
 
-        if (prevSavePath.isNotEmpty() && context!!.config.saveRecordingsFolder != prevSavePath) {
-            loadRecordings()
-        } else {
-            getRecordingsAdapter()?.updateTextColor(context.getProperTextColor())
-        }
-
-        prevSavePath = context!!.config.saveRecordingsFolder
+        getRecordingsAdapter()?.updateTextColor(context.getProperTextColor())
         refreshView()
     }
 
@@ -115,23 +107,15 @@ class RecordingsFragment(
         updateRecordingDuration(0)
         binding.toggleRecordingButton.setDebouncedClickListener {
             val activity = context as? BaseSimpleActivity
-            activity?.ensureStoragePermission {
-                if (it) {
-                    activity.handleNotificationPermission { granted ->
-                        if (granted) {
-                            cycleRecordingState()
-                        } else {
-                            PermissionRequiredDialog(
-                                activity = context as BaseSimpleActivity,
-                                textId = org.fossify.commons.R.string.allow_notifications_voice_recorder,
-                                positiveActionCallback = {
-                                    (context as BaseSimpleActivity).openNotificationSettings()
-                                }
-                            )
-                        }
-                    }
+            activity?.handleNotificationPermission { granted ->
+                if (granted) {
+                    cycleRecordingState()
                 } else {
-                    activity.toast(org.fossify.commons.R.string.no_storage_permissions)
+                    PermissionRequiredDialog(
+                        activity = activity,
+                        textId = org.fossify.commons.R.string.allow_notifications_voice_recorder,
+                        positiveActionCallback = { activity.openNotificationSettings() }
+                    )
                 }
             }
         }

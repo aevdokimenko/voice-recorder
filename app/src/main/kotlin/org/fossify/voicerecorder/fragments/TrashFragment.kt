@@ -10,7 +10,6 @@ import org.fossify.commons.extensions.updateTextColors
 import org.fossify.voicerecorder.activities.SimpleActivity
 import org.fossify.voicerecorder.adapters.TrashAdapter
 import org.fossify.voicerecorder.databinding.FragmentTrashBinding
-import org.fossify.voicerecorder.extensions.config
 import org.fossify.voicerecorder.interfaces.RefreshRecordingsListener
 import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.models.Recording
@@ -26,7 +25,6 @@ class TrashFragment(
     private var itemsIgnoringSearch = ArrayList<Recording>()
     private var lastSearchQuery = ""
     private var bus: EventBus? = null
-    private var prevSavePath = ""
     private lateinit var binding: FragmentTrashBinding
 
     override fun onFinishInflate() {
@@ -36,13 +34,7 @@ class TrashFragment(
 
     override fun onResume() {
         setupColors()
-        if (prevSavePath.isNotEmpty() && context!!.config.saveRecordingsFolder != prevSavePath) {
-            loadRecordings(trashed = true)
-        } else {
-            getRecordingsAdapter()?.updateTextColor(context.getProperTextColor())
-        }
-
-        storePrevPath()
+        getRecordingsAdapter()?.updateTextColor(context.getProperTextColor())
     }
 
     override fun onDestroy() {
@@ -56,7 +48,6 @@ class TrashFragment(
         bus!!.register(this)
         setupColors()
         loadRecordings(trashed = true)
-        storePrevPath()
     }
 
     override fun refreshRecordings() = loadRecordings(trashed = true)
@@ -114,10 +105,6 @@ class TrashFragment(
     }
 
     private fun getRecordingsAdapter() = binding.trashList.adapter as? TrashAdapter
-
-    private fun storePrevPath() {
-        prevSavePath = context!!.config.saveRecordingsFolder
-    }
 
     private fun setupColors() {
         val properPrimaryColor = context.getProperPrimaryColor()

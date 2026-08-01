@@ -27,7 +27,6 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/normal_margin"
         android:textSize="@dimen/extra_big_text_size"
-        app:layout_constraintBottom_toTopOf="@+id/toggle_recording_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recorder_visualizer"
@@ -60,9 +59,9 @@
         android:focusable="true"
         android:padding="@dimen/normal_margin"
         android:src="@drawable/ic_start_recording_vector"
-        app:layout_constraintBottom_toTopOf="@+id/recordings_fastscroller"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recording_duration" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/save_recording_button"

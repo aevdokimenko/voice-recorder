@@ -2,22 +2,15 @@ package org.fossify.voicerecorder.activities
 
 import android.os.Bundle
 import org.fossify.commons.dialogs.ChangeDateTimeFormatDialog
-import org.fossify.commons.extensions.addLockedLabelIfNeeded
 import org.fossify.commons.extensions.beGone
 import org.fossify.commons.extensions.beVisible
 import org.fossify.commons.extensions.beVisibleIf
 import org.fossify.commons.extensions.getProperPrimaryColor
-import org.fossify.commons.extensions.humanizePath
 import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.helpers.NavigationIcon
-import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.commons.helpers.isTiramisuPlus
-import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.databinding.ActivitySettingsBinding
-import org.fossify.voicerecorder.dialogs.MoveRecordingsDialog
 import org.fossify.voicerecorder.extensions.config
-import org.fossify.voicerecorder.extensions.hasRecordings
-import org.fossify.voicerecorder.extensions.launchFolderPicker
 import java.util.Locale
 import kotlin.system.exitProcess
 
@@ -40,7 +33,6 @@ class SettingsActivity : SimpleActivity() {
         setupUseEnglish()
         setupLanguage()
         setupChangeDateTimeFormat()
-        setupSaveRecordingsFolder()
         setupKeepScreenOn()
         updateTextColors(binding.settingsNestedScrollview)
 
@@ -75,39 +67,6 @@ class SettingsActivity : SimpleActivity() {
     private fun setupChangeDateTimeFormat() {
         binding.settingsChangeDateTimeFormatHolder.setOnClickListener {
             ChangeDateTimeFormatDialog(this) {}
-        }
-    }
-
-    private fun setupSaveRecordingsFolder() {
-        binding.settingsSaveRecordingsLabel.text =
-            addLockedLabelIfNeeded(R.string.save_recordings_in)
-        binding.settingsSaveRecordings.text = humanizePath(config.saveRecordingsFolder)
-        binding.settingsSaveRecordingsHolder.setOnClickListener {
-            val currentFolder = config.saveRecordingsFolder
-            launchFolderPicker(currentFolder) { newFolder ->
-                if (!newFolder.isNullOrEmpty()) {
-                    ensureBackgroundThread {
-                        val hasRecordings = hasRecordings()
-                        runOnUiThread {
-                            if (newFolder != currentFolder && hasRecordings) {
-                                MoveRecordingsDialog(
-                                    activity = this,
-                                    previousFolder = currentFolder,
-                                    newFolder = newFolder
-                                ) {
-                                    config.saveRecordingsFolder = newFolder
-                                    binding.settingsSaveRecordings.text =
-                                        humanizePath(config.saveRecordingsFolder)
-                                }
-                            } else {
-                                config.saveRecordingsFolder = newFolder
-                                binding.settingsSaveRecordings.text =
-                                    humanizePath(config.saveRecordingsFolder)
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 

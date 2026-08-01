@@ -7,41 +7,47 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
-import android.media.MediaMetadataRetriever
-import android.net.Uri
-import android.os.Environment
-import android.provider.DocumentsContract
 import androidx.core.graphics.createBitmap
-import androidx.documentfile.provider.DocumentFile
-import org.fossify.commons.extensions.createFirstParentTreeUri
-import org.fossify.commons.extensions.createSAFDirectorySdk30
-import org.fossify.commons.extensions.getDocumentSdk30
-import org.fossify.commons.extensions.getDoesFilePathExistSdk30
 import org.fossify.commons.extensions.getDuration
-import org.fossify.commons.extensions.getFilenameFromPath
-import org.fossify.commons.extensions.getMimeType
-import org.fossify.commons.extensions.getParentPath
-import org.fossify.commons.extensions.getSAFDocumentId
-import org.fossify.commons.extensions.internalStoragePath
 import org.fossify.commons.extensions.isAudioFast
-import org.fossify.commons.helpers.isQPlus
-import org.fossify.commons.helpers.isRPlus
-import org.fossify.commons.helpers.isSPlus
-import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.helpers.Config
-import org.fossify.voicerecorder.helpers.DEFAULT_RECORDINGS_FOLDER
 import org.fossify.voicerecorder.helpers.IS_RECORDING
 import org.fossify.voicerecorder.helpers.MyWidgetRecordDisplayProvider
+import org.fossify.voicerecorder.helpers.RECORDINGS_FOLDER_NAME
 import org.fossify.voicerecorder.helpers.TOGGLE_WIDGET_UI
 import org.fossify.voicerecorder.helpers.generateRecordingFilename
 import org.fossify.voicerecorder.models.Recording
 import java.io.File
-import kotlin.math.roundToLong
 
 val Context.config: Config get() = Config.newInstance(applicationContext)
 
-val Context.trashFolder
-    get() = "${config.saveRecordingsFolder}/.trash"
+/**
+ * Recordings live in app-specific external storage, which needs no runtime permission and no SAF
+ * on any supported API level. Recordings are staging for upload rather than a user-managed
+ * library, so the folder is fixed and `Recording.path` is always a plain filesystem path.
+ */
+val Context.recordingsFolder: String
+    get() {
+        val folder = getExternalFilesDir(RECORDINGS_FOLDER_NAME)
+            ?: File(filesDir, RECORDINGS_FOLDER_NAME)
+        if (!folder.exists()) {
+            folder.mkdirs()
+        }
+
+        return folder.absolutePath
+    }
+
+val Context.trashFolder: String
+    get() = "$recordingsFolder/.trash"
+
+fun Context.getOrCreateTrashFolder(): String {
+    val folder = File(trashFolder)
+    if (!folder.exists()) {
+        folder.mkdirs()
+    }
+
+    return trashFolder
+}
 
 fun Context.drawableToBitmap(drawable: Drawable): Bitmap {
     val size = (60 * resources.displayMetrics.density).toInt()
@@ -70,146 +76,26 @@ fun Context.updateWidgets(isRecording: Boolean) {
     }
 }
 
-fun Context.getOrCreateTrashFolder(): String {
-    val folder = File(trashFolder)
-    if (!folder.exists()) {
-        folder.mkdir()
-    }
-    return trashFolder
-}
-
-fun Context.getDefaultRecordingsFolder(): String {
-    val defaultPath = getDefaultRecordingsRelativePath()
-    return "$internalStoragePath/$defaultPath"
-}
-
-fun Context.getDefaultRecordingsRelativePath(): String {
-    // The in-app folder picker can't create directories under scoped storage, so the default must
-    // be a folder the system already provides. Android 12+ ships a top-level "Recordings" dir;
-    // older versions fall back to Music/Recordings.
-    return when {
-        isSPlus() -> Environment.DIRECTORY_RECORDINGS
-        isQPlus() -> "${Environment.DIRECTORY_MUSIC}/$DEFAULT_RECORDINGS_FOLDER"
-        else -> getString(R.string.app_name)
-    }
-}
-
-fun Context.hasRecordings(): Boolean {
-    val recordingsFolder = config.saveRecordingsFolder
-    return if (isRPlus()) {
-        getDocumentSdk30(recordingsFolder)
-            ?.listFiles()
-            ?.any { it.isAudioRecording() }
-            ?: false
-    } else {
-        File(recordingsFolder)
-            .listFiles()
-            ?.any { it.isAudioFast() }
-            ?: false
-    }
-}
-
 fun Context.getAllRecordings(trashed: Boolean = false): ArrayList<Recording> {
-    return if (isRPlus()) {
-        getRecordings(trashed)
-    } else {
-        getLegacyRecordings(trashed)
-    }
-}
-
-private fun Context.getRecordings(trashed: Boolean = false): ArrayList<Recording> {
+    val folder = if (trashed) trashFolder else recordingsFolder
+    val files = File(folder).listFiles() ?: return ArrayList()
     val recordings = ArrayList<Recording>()
-    val folder = if (trashed) trashFolder else config.saveRecordingsFolder
-    val files = getDocumentSdk30(folder)?.listFiles() ?: return recordings
-    files.forEach { file ->
-        if (file.isAudioRecording()) {
-            recordings.add(
-                readRecordingFromFile(file)
-            )
-        }
-    }
 
-    return recordings
-}
-
-private fun Context.getLegacyRecordings(trashed: Boolean = false): ArrayList<Recording> {
-    val recordings = ArrayList<Recording>()
-    val folder = if (trashed) {
-        trashFolder
-    } else {
-        config.saveRecordingsFolder
-    }
-    val files = File(folder).listFiles() ?: return recordings
-
-    files.filter { it.isAudioFast() }.forEach {
-        val id = it.hashCode()
-        val title = it.name
-        val path = it.absolutePath
-        val timestamp = it.lastModified()
-        val duration = getDuration(it.absolutePath) ?: 0
-        val size = it.length().toInt()
+    // isFile skips the nested .trash directory when listing the recordings folder.
+    files.filter { it.isFile && it.isAudioFast() }.forEach {
         recordings.add(
             Recording(
-                id = id,
-                title = title,
-                path = path,
-                timestamp = timestamp,
-                duration = duration,
-                size = size
+                id = it.hashCode(),
+                title = it.name,
+                path = it.absolutePath,
+                timestamp = it.lastModified(),
+                duration = getDuration(it.absolutePath) ?: 0,
+                size = it.length().toInt()
             )
         )
     }
+
     return recordings
-}
-
-private fun Context.readRecordingFromFile(file: DocumentFile): Recording {
-    val id = file.hashCode()
-    val title = file.name!!
-    val path = file.uri.toString()
-    val timestamp = file.lastModified()
-    val duration = getDurationFromUri(file.uri)
-    val size = file.length().toInt()
-    return Recording(
-        id = id,
-        title = title,
-        path = path,
-        timestamp = timestamp,
-        duration = duration.toInt(),
-        size = size
-    )
-}
-
-private fun Context.getDurationFromUri(uri: Uri): Long {
-    return try {
-        val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(this, uri)
-        val time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)!!
-        (time.toLong() / 1000.toDouble()).roundToLong()
-    } catch (e: Exception) {
-        0L
-    }
-}
-
-// Based on common's `Context.createSAFFileSdk30` extension
-fun Context.createDocumentFile(path: String): Uri? {
-    return try {
-        val treeUri = createFirstParentTreeUri(path)
-        val parentPath = path.getParentPath()
-        if (!getDoesFilePathExistSdk30(parentPath)) {
-            createSAFDirectorySdk30(parentPath)
-        }
-
-        val documentId = getSAFDocumentId(parentPath)
-        val parentUri = DocumentsContract.buildDocumentUriUsingTree(treeUri, documentId)
-        DocumentsContract.createDocument(
-            contentResolver,
-            parentUri,
-            path.getMimeType(),
-            path.getFilenameFromPath()
-        )
-    } catch (@Suppress("SwallowedException") e: IllegalStateException) {
-        null
-    }
 }
 
 fun Context.getFormattedFilename(): String = generateRecordingFilename()

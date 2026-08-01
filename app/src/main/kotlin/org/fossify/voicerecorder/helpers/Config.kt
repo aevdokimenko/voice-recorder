@@ -6,17 +6,11 @@ import android.media.MediaRecorder
 import androidx.core.content.edit
 import org.fossify.commons.helpers.BaseConfig
 import org.fossify.voicerecorder.R
-import org.fossify.voicerecorder.extensions.getDefaultRecordingsFolder
 
 class Config(context: Context) : BaseConfig(context) {
     companion object {
         fun newInstance(context: Context) = Config(context)
     }
-
-    var saveRecordingsFolder: String
-        get() = prefs.getString(SAVE_RECORDINGS, context.getDefaultRecordingsFolder())!!
-        set(saveRecordingsFolder) = prefs.edit().putString(SAVE_RECORDINGS, saveRecordingsFolder)
-            .apply()
 
     var extension: Int
         get() = prefs.getInt(EXTENSION, EXTENSION_M4A)

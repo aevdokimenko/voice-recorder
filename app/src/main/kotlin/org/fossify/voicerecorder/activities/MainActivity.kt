@@ -17,8 +17,6 @@ import org.fossify.commons.helpers.LICENSE_AUDIO_RECORD_VIEW
 import org.fossify.commons.helpers.LICENSE_AUTOFITTEXTVIEW
 import org.fossify.commons.helpers.LICENSE_EVENT_BUS
 import org.fossify.commons.helpers.PERMISSION_RECORD_AUDIO
-import org.fossify.commons.helpers.PERMISSION_WRITE_STORAGE
-import org.fossify.commons.helpers.isRPlus
 import org.fossify.commons.models.FAQItem
 import org.fossify.voicerecorder.BuildConfig
 import org.fossify.voicerecorder.R
@@ -27,7 +25,6 @@ import org.fossify.voicerecorder.databinding.ActivityMainBinding
 import org.fossify.voicerecorder.extensions.config
 import org.fossify.voicerecorder.extensions.deleteExpiredTrashedRecordings
 import org.fossify.voicerecorder.extensions.deleteTrashedRecordings
-import org.fossify.voicerecorder.extensions.ensureStoragePermission
 import org.fossify.voicerecorder.helpers.STOP_AMPLITUDE_UPDATE
 import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.services.RecorderService
@@ -54,7 +51,7 @@ class MainActivity : SimpleActivity() {
 
         handlePermission(PERMISSION_RECORD_AUDIO) {
             if (it) {
-                tryInitVoiceRecorder()
+                setupViewPager()
             } else {
                 toast(org.fossify.commons.R.string.no_audio_permissions)
                 finish()
@@ -140,28 +137,6 @@ class MainActivity : SimpleActivity() {
                 deleteTrashedRecordings()
                 runOnUiThread {
                     EventBus.getDefault().post(Events.RecordingTrashUpdated())
-                }
-            }
-        }
-    }
-
-    private fun tryInitVoiceRecorder() {
-        if (isRPlus()) {
-            ensureStoragePermission { granted ->
-                if (granted) {
-                    setupViewPager()
-                } else {
-                    toast(org.fossify.commons.R.string.no_storage_permissions)
-                    finish()
-                }
-            }
-        } else {
-            handlePermission(PERMISSION_WRITE_STORAGE) {
-                if (it) {
-                    setupViewPager()
-                } else {
-                    toast(org.fossify.commons.R.string.no_storage_permissions)
-                    finish()
                 }
             }
         }

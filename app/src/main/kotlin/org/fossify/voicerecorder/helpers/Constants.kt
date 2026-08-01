@@ -71,7 +71,6 @@ const val IS_RECORDING = "is_recording"
 const val TOGGLE_WIDGET_UI = "toggle_widget_ui"
 
 // shared preferences
-const val SAVE_RECORDINGS = "save_recordings"
 const val EXTENSION = "extension"
 const val MICROPHONE_MODE = "microphone_mode"
 const val BITRATE = "bitrate"
@@ -79,4 +78,5 @@ const val SAMPLING_RATE = "sampling_rate"
 const val LAST_RECYCLE_BIN_CHECK = "last_recycle_bin_check"
 const val KEEP_SCREEN_ON = "keep_screen_on"
 
-const val DEFAULT_RECORDINGS_FOLDER = "Recordings"
+// subfolder of the app-specific external files dir where recordings are stored
+const val RECORDINGS_FOLDER_NAME = "Recordings"

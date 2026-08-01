@@ -19,13 +19,12 @@
     <!-- Settings -->
     <string name="keep_screen_on">Keep the screen on during recording</string>
     <!-- Settings Microphone mode selection -->
-    <!-- FAQ -->
-    <string name="based_on_fossify_voice_recorder">LR is based on Fossify Voice Recorder (GPLv3), modified 2026 — source: https://github.com/aevdokimenko/voice-recorder</string>
-    <string name="faq_1_title">Can I hide the notification icon during recording?</string>
-    <string name="faq_1_text">Well, it depends. While you use your device it is no longer possible to fully hide the notifications of apps like this.
-        If you check the proper setting item, the app will do its best to hide it. You can hide it on the lockscreen though, if you disable the displaying of sensitive notifications in your device settings.</string>
     <!--
         Haven't found some strings? There's more at
         https://github.com/FossifyOrg/Commons/tree/master/commons/src/main/res
     -->
+    <!-- About -->
+    <string name="about_legal_notice">LR is based on Fossify Voice Recorder, copyright the Fossify contributors, and was modified in 2026.\n\nThis program is free software: you may redistribute it and/or modify it under the terms of the GNU General Public License, version 3, as published by the Free Software Foundation. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY — without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</string>
+    <string name="about_source_code">Source code</string>
+    <string name="about_source_code_url" translatable="false">https://github.com/aevdokimenko/voice-recorder</string>
 </resources>

@@ -13,11 +13,7 @@ import org.fossify.commons.extensions.onPageChangeListener
 import org.fossify.commons.extensions.onTabSelectionChanged
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.extensions.updateBottomTabItemColors
-import org.fossify.commons.helpers.LICENSE_AUDIO_RECORD_VIEW
-import org.fossify.commons.helpers.LICENSE_AUTOFITTEXTVIEW
-import org.fossify.commons.helpers.LICENSE_EVENT_BUS
 import org.fossify.commons.helpers.PERMISSION_RECORD_AUDIO
-import org.fossify.commons.models.FAQItem
 import org.fossify.voicerecorder.BuildConfig
 import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.adapters.ViewPagerAdapter
@@ -221,32 +217,7 @@ class MainActivity : SimpleActivity() {
     }
 
     private fun launchAbout() {
-        val licenses = LICENSE_EVENT_BUS or
-                LICENSE_AUDIO_RECORD_VIEW or
-                LICENSE_AUTOFITTEXTVIEW
-
-        val faqItems = arrayListOf(
-            FAQItem(
-                title = R.string.based_on_fossify_voice_recorder,
-                text = R.string.based_on_fossify_voice_recorder
-            ),
-            FAQItem(
-                title = R.string.faq_1_title,
-                text = R.string.faq_1_text
-            ),
-            FAQItem(
-                title = org.fossify.commons.R.string.faq_9_title_commons,
-                text = org.fossify.commons.R.string.faq_9_text_commons
-            )
-        )
-
-        startAboutActivity(
-            appNameId = R.string.app_name,
-            licenseMask = licenses,
-            versionName = BuildConfig.VERSION_NAME,
-            faqItems = faqItems,
-            showFAQBeforeMail = true
-        )
+        startActivity(Intent(applicationContext, AboutActivity::class.java))
     }
 
 }

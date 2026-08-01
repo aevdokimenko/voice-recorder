@@ -35,22 +35,19 @@
             android:name="org.fossify.commons.activities.ContributorsActivity"
             android:configChanges="orientation"
             android:exported="false"
-            android:label="@string/contributors"
-            android:parentActivityName="org.fossify.commons.activities.AboutActivity" />
+            android:label="@string/contributors" />
 
         <activity
             android:name="org.fossify.commons.activities.FAQActivity"
             android:configChanges="orientation"
             android:exported="false"
-            android:label="@string/frequently_asked_questions"
-            android:parentActivityName="org.fossify.commons.activities.AboutActivity" />
+            android:label="@string/frequently_asked_questions" />
 
         <activity
             android:name="org.fossify.commons.activities.LicenseActivity"
             android:configChanges="orientation"
             android:exported="false"
-            android:label="@string/third_party_licences"
-            android:parentActivityName="org.fossify.commons.activities.AboutActivity" />
+            android:label="@string/third_party_licences" />
 
         <activity
             android:name=".activities.ManageBlockedNumbersActivity"

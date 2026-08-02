@@ -418,6 +418,12 @@ class RecordingsFragment(
 
     @Suppress("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
+    fun recordingUploadUpdated(@Suppress("UNUSED_PARAMETER") event: Events.RecordingUploadUpdated) {
+        refreshRecordings()
+    }
+
+    @Suppress("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun recordingMovedToRecycleBin(@Suppress("UNUSED_PARAMETER") event: Events.RecordingTrashUpdated) {
         refreshRecordings()
     }

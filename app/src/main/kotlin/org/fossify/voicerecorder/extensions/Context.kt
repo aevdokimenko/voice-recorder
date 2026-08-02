@@ -23,6 +23,7 @@ import org.fossify.voicerecorder.helpers.MyWidgetRecordDisplayProvider
 import org.fossify.voicerecorder.helpers.RECORDINGS_FOLDER_NAME
 import org.fossify.voicerecorder.helpers.TOGGLE_WIDGET_UI
 import org.fossify.voicerecorder.helpers.generateRecordingFilename
+import org.fossify.voicerecorder.helpers.readUploadStatus
 import org.fossify.voicerecorder.models.Recording
 import org.fossify.voicerecorder.workers.UploadWorker
 import java.io.File
@@ -99,7 +100,8 @@ fun Context.getAllRecordings(trashed: Boolean = false): ArrayList<Recording> {
                 path = it.absolutePath,
                 timestamp = it.lastModified(),
                 duration = getDuration(it.absolutePath) ?: 0,
-                size = it.length().toInt()
+                size = it.length().toInt(),
+                uploadState = readUploadStatus(it.absolutePath)?.state
             )
         )
     }

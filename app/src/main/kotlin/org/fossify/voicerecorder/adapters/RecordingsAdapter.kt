@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
 import org.fossify.commons.adapters.MyRecyclerViewAdapter
+import org.fossify.commons.extensions.beVisibleIf
 import org.fossify.commons.extensions.formatDate
 import org.fossify.commons.extensions.formatSize
 import org.fossify.commons.extensions.getFormattedDuration
@@ -21,7 +22,9 @@ import org.fossify.voicerecorder.activities.SimpleActivity
 import org.fossify.voicerecorder.databinding.ItemRecordingBinding
 import org.fossify.voicerecorder.dialogs.DeleteConfirmationDialog
 import org.fossify.voicerecorder.dialogs.RenameRecordingDialog
+import org.fossify.voicerecorder.extensions.enqueueUpload
 import org.fossify.voicerecorder.extensions.trashRecordings
+import org.fossify.voicerecorder.helpers.UploadState
 import org.fossify.voicerecorder.interfaces.RefreshRecordingsListener
 import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.models.Recording
@@ -241,6 +244,27 @@ class RecordingsAdapter(
             recordingDate.text = recording.timestamp.formatDate(root.context)
             recordingDuration.text = recording.duration.getFormattedDuration()
             recordingSize.text = recording.size.formatSize()
+
+            val uploadLabel = when (recording.uploadState) {
+                UploadState.PENDING -> R.string.upload_pending
+                UploadState.UPLOADING -> R.string.upload_in_progress
+                UploadState.UPLOADED -> R.string.upload_done
+                UploadState.FAILED -> R.string.upload_failed
+                null -> null
+            }
+
+            recordingUploadStatus.beVisibleIf(uploadLabel != null)
+            if (uploadLabel != null) {
+                recordingUploadStatus.text = root.context.getString(uploadLabel)
+                recordingUploadStatus.setTextColor(textColor)
+            }
+
+            recordingUploadStatus.setOnClickListener {
+                if (recording.uploadState == UploadState.FAILED) {
+                    activity.enqueueUpload(recording.path)
+                    refreshListener.refreshRecordings()
+                }
+            }
         }
     }
 

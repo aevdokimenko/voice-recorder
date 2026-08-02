@@ -27,4 +27,9 @@
     <string name="about_legal_notice">LR is based on Fossify Voice Recorder, copyright the Fossify contributors, and was modified in 2026.\n\nThis program is free software: you may redistribute it and/or modify it under the terms of the GNU General Public License, version 3, as published by the Free Software Foundation. It is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY — without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</string>
     <string name="about_source_code">Source code</string>
     <string name="about_source_code_url" translatable="false">https://github.com/aevdokimenko/voice-recorder</string>
+    <!-- Upload -->
+    <string name="upload_pending">Waiting to upload</string>
+    <string name="upload_in_progress">Uploading\u2026</string>
+    <string name="upload_done">Uploaded</string>
+    <string name="upload_failed">Upload failed \u2014 tap to retry</string>
 </resources>

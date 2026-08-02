@@ -6,6 +6,8 @@ import org.fossify.commons.activities.BaseSimpleActivity
 import org.fossify.commons.helpers.DAY_SECONDS
 import org.fossify.commons.helpers.MONTH_SECONDS
 import org.fossify.commons.helpers.ensureBackgroundThread
+import org.fossify.voicerecorder.helpers.deleteUploadStatus
+import org.fossify.voicerecorder.helpers.moveUploadStatus
 import org.fossify.voicerecorder.models.Recording
 import java.io.File
 
@@ -22,7 +24,12 @@ fun BaseSimpleActivity.deleteRecordings(
     callback: (success: Boolean) -> Unit
 ) {
     ensureBackgroundThread {
-        recordingsToRemove.forEach { File(it.path).delete() }
+        recordingsToRemove.forEach {
+            cancelUpload(it.path)
+            deleteUploadStatus(it.path)
+            File(it.path).delete()
+        }
+
         callback(true)
     }
 }
@@ -47,7 +54,8 @@ fun BaseSimpleActivity.restoreRecordings(
 
 /**
  * The recordings folder and its .trash subfolder are on the same volume, so a rename moves the
- * file without copying.
+ * file without copying. The upload sidecar moves with it, and any queued upload is cancelled
+ * first so it cannot race the move.
  */
 fun BaseSimpleActivity.moveRecordings(
     recordingsToMove: Collection<Recording>,
@@ -57,7 +65,11 @@ fun BaseSimpleActivity.moveRecordings(
     ensureBackgroundThread {
         File(destinationParent).mkdirs()
         recordingsToMove.forEach { recording ->
-            File(recording.path).renameTo(File(destinationParent, recording.title))
+            cancelUpload(recording.path)
+            val target = File(destinationParent, recording.title)
+            if (File(recording.path).renameTo(target)) {
+                moveUploadStatus(recording.path, target.absolutePath)
+            }
         }
 
         callback(true)

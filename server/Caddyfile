@@ -1,0 +1,17 @@
+{$LR_DOMAIN} {
+	# Object storage, reached only via presigned URLs.
+	handle_path /s3/* {
+		reverse_proxy minio:9000
+	}
+
+	# Enrollment / config / presign.
+	handle /api/* {
+		reverse_proxy control-plane:8080
+	}
+
+	handle /healthz {
+		reverse_proxy control-plane:8080
+	}
+
+	respond "not found" 404
+}

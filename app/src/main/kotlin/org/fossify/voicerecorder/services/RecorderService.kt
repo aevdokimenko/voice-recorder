@@ -16,6 +16,7 @@ import org.fossify.commons.helpers.ensureBackgroundThread
 import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.activities.SplashActivity
 import org.fossify.voicerecorder.extensions.config
+import org.fossify.voicerecorder.extensions.enqueueUpload
 import org.fossify.voicerecorder.extensions.getFormattedFilename
 import org.fossify.voicerecorder.extensions.recordingsFolder
 import org.fossify.voicerecorder.extensions.updateWidgets
@@ -128,6 +129,7 @@ class RecorderService : Service() {
 
             ensureBackgroundThread {
                 toast(R.string.recording_saved_successfully)
+                enqueueUpload(recordingPath)
                 EventBus.getDefault().post(Events.RecordingCompleted())
             }
         }

@@ -8,6 +8,13 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import androidx.core.graphics.createBitmap
+import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import org.fossify.commons.extensions.getDuration
 import org.fossify.commons.extensions.isAudioFast
 import org.fossify.voicerecorder.helpers.Config
@@ -17,7 +24,9 @@ import org.fossify.voicerecorder.helpers.RECORDINGS_FOLDER_NAME
 import org.fossify.voicerecorder.helpers.TOGGLE_WIDGET_UI
 import org.fossify.voicerecorder.helpers.generateRecordingFilename
 import org.fossify.voicerecorder.models.Recording
+import org.fossify.voicerecorder.workers.UploadWorker
 import java.io.File
+import java.util.concurrent.TimeUnit
 
 val Context.config: Config get() = Config.newInstance(applicationContext)
 
@@ -96,6 +105,36 @@ fun Context.getAllRecordings(trashed: Boolean = false): ArrayList<Recording> {
     }
 
     return recordings
+}
+
+private const val UPLOAD_BACKOFF_SECONDS = 30L
+
+fun Context.enqueueUpload(recordingPath: String) {
+    if (config.uploadEndpoint.isBlank()) {
+        return
+    }
+
+    val input = Data.Builder()
+        .putString(UploadWorker.KEY_RECORDING_PATH, recordingPath)
+        .build()
+    val request = OneTimeWorkRequestBuilder<UploadWorker>()
+        .setInputData(input)
+        .setConstraints(
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+        )
+        .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, UPLOAD_BACKOFF_SECONDS, TimeUnit.SECONDS)
+        .build()
+
+    WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+        UploadWorker.uniqueWorkNameFor(recordingPath),
+        ExistingWorkPolicy.REPLACE,
+        request
+    )
+}
+
+fun Context.cancelUpload(recordingPath: String) {
+    WorkManager.getInstance(applicationContext)
+        .cancelUniqueWork(UploadWorker.uniqueWorkNameFor(recordingPath))
 }
 
 fun Context.getFormattedFilename(): String = generateRecordingFilename()

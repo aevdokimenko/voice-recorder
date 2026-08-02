@@ -19,6 +19,7 @@ androidx-exifinterface = "1.4.2"
 androidx-coreKtx = "1.17.0"
 androidx-appcompat = "1.7.1"
 androidx-swiperefreshlayout = "1.2.0"
+androidx-work = "2.10.1"
 #Material
 material = "1.13.0"
 #patternLockView
@@ -68,6 +69,7 @@ androidx-customViewPooling = { module = "androidx.customview:customview-poolingc
 androidx-documentfile = { module = "androidx.documentfile:documentfile", version.ref = "androidx-documentfile" }
 androidx-exifinterface = { module = "androidx.exifinterface:exifinterface", version.ref = "androidx-exifinterface" }
 androidx-swiperefreshlayout = { module = "androidx.swiperefreshlayout:swiperefreshlayout", version.ref = "androidx-swiperefreshlayout" }
+androidx-work-runtime = { module = "androidx.work:work-runtime", version.ref = "androidx-work" }
 #Android X lifecycle
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-viewModel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidx-lifecycle" }

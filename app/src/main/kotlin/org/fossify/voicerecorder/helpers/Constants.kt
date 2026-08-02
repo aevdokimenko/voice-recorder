@@ -77,6 +77,8 @@ const val BITRATE = "bitrate"
 const val SAMPLING_RATE = "sampling_rate"
 const val LAST_RECYCLE_BIN_CHECK = "last_recycle_bin_check"
 const val KEEP_SCREEN_ON = "keep_screen_on"
+const val UPLOAD_ENDPOINT = "upload_endpoint"
+const val UPLOAD_TOKEN = "upload_token"
 
 // subfolder of the app-specific external files dir where recordings are stored
 const val RECORDINGS_FOLDER_NAME = "Recordings"

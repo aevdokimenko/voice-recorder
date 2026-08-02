@@ -37,6 +37,16 @@ android {
         versionName = project.property("VERSION_NAME").toString()
         versionCode = project.property("VERSION_CODE").toString().toInt()
         vectorDrawables.useSupportLibrary = true
+        buildConfigField(
+            "String",
+            "UPLOAD_ENDPOINT",
+            "\"${project.findProperty("UPLOAD_ENDPOINT") ?: ""}\""
+        )
+        buildConfigField(
+            "String",
+            "UPLOAD_TOKEN",
+            "\"${project.findProperty("UPLOAD_TOKEN") ?: ""}\""
+        )
     }
 
     signingConfigs {
@@ -137,6 +147,7 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.autofittextview)
     testImplementation(libs.junit)
     detektPlugins(libs.compose.detekt)

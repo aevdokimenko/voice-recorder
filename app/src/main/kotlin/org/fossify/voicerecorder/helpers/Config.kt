@@ -5,6 +5,7 @@ import android.content.Context
 import android.media.MediaRecorder
 import androidx.core.content.edit
 import org.fossify.commons.helpers.BaseConfig
+import org.fossify.voicerecorder.BuildConfig
 import org.fossify.voicerecorder.R
 
 class Config(context: Context) : BaseConfig(context) {
@@ -51,6 +52,14 @@ class Config(context: Context) : BaseConfig(context) {
         get() = prefs.getLong(LAST_RECYCLE_BIN_CHECK, 0L)
         set(lastRecycleBinCheck) = prefs.edit().putLong(LAST_RECYCLE_BIN_CHECK, lastRecycleBinCheck)
             .apply()
+
+    var uploadEndpoint: String
+        get() = prefs.getString(UPLOAD_ENDPOINT, BuildConfig.UPLOAD_ENDPOINT)!!
+        set(uploadEndpoint) = prefs.edit { putString(UPLOAD_ENDPOINT, uploadEndpoint) }
+
+    var uploadToken: String
+        get() = prefs.getString(UPLOAD_TOKEN, BuildConfig.UPLOAD_TOKEN)!!
+        set(uploadToken) = prefs.edit { putString(UPLOAD_TOKEN, uploadToken) }
 
     var keepScreenOn: Boolean
         get() = prefs.getBoolean(KEEP_SCREEN_ON, true)

@@ -9,6 +9,9 @@ the app never holds long-lived storage credentials.
 
 ## Setup
 
+> Deploying to a fresh Linux box? Follow **[DEPLOY.md](DEPLOY.md)** instead — it covers Docker
+> install, firewall, DNS/TLS and day-2 operations step by step.
+
 ```bash
 cd server
 cp .env.example .env

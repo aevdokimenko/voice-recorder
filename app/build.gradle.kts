@@ -150,5 +150,6 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.autofittextview)
     testImplementation(libs.junit)
+    testImplementation(libs.json)
     detektPlugins(libs.compose.detekt)
 }

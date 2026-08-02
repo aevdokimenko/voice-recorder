@@ -50,6 +50,7 @@ eventbus = "3.3.1"
 audiorecordview = "1.0.5"
 autofittextview = "0.2.1"
 junit = "4.13.2"
+json = "20250517"
 #Gradle
 gradlePlugins-agp = "9.3.1"
 #build
@@ -115,6 +116,8 @@ eventbus = { module = "org.greenrobot:eventbus", version.ref = "eventbus" }
 audiorecordview = { module = "com.github.Armen101:AudioRecordView", version.ref = "audiorecordview" }
 autofittextview = { module = "me.grantland:autofittextview", version.ref = "autofittextview" }
 junit = { module = "junit:junit", version.ref = "junit" }
+# real org.json for unit tests; the platform one is a throwing stub in local JVM tests
+json = { module = "org.json:json", version.ref = "json" }
 [bundles]
 compose = [
     "compose-activity",

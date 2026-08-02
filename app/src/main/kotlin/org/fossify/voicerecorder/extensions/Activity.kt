@@ -4,10 +4,12 @@ import android.app.Activity
 import android.view.WindowManager
 import org.fossify.commons.activities.BaseSimpleActivity
 import org.fossify.commons.helpers.DAY_SECONDS
-import org.fossify.commons.helpers.MONTH_SECONDS
 import org.fossify.commons.helpers.ensureBackgroundThread
+import org.fossify.voicerecorder.helpers.UploadState
 import org.fossify.voicerecorder.helpers.deleteUploadStatus
 import org.fossify.voicerecorder.helpers.moveUploadStatus
+import org.fossify.voicerecorder.helpers.isOlderThanDays
+import org.fossify.voicerecorder.helpers.readUploadStatus
 import org.fossify.voicerecorder.models.Recording
 import java.io.File
 
@@ -80,19 +82,42 @@ fun BaseSimpleActivity.deleteTrashedRecordings() {
     deleteRecordings(getAllRecordings(trashed = true)) {}
 }
 
-fun BaseSimpleActivity.deleteExpiredTrashedRecordings() {
-    if (config.lastRecycleBinCheck < System.currentTimeMillis() - DAY_SECONDS * 1000) {
-        config.lastRecycleBinCheck = System.currentTimeMillis()
-        ensureBackgroundThread {
-            try {
-                val recordingsToRemove = getAllRecordings(trashed = true)
-                    .filter { it.timestamp < System.currentTimeMillis() - MONTH_SECONDS * 1000L }
-                if (recordingsToRemove.isNotEmpty()) {
-                    deleteRecordings(recordingsToRemove) {}
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+/**
+ * Runs once a day. Uploaded recordings are trashed after the server's retention window, and
+ * trashed recordings are purged after the longer one.
+ */
+fun BaseSimpleActivity.applyRetentionPolicy() {
+    if (config.lastRecycleBinCheck >= System.currentTimeMillis() - DAY_SECONDS * 1000) {
+        return
+    }
+
+    config.lastRecycleBinCheck = System.currentTimeMillis()
+    ensureBackgroundThread {
+        try {
+            autoTrashUploadedRecordings()
+            purgeExpiredTrashedRecordings()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+    }
+}
+
+private fun BaseSimpleActivity.autoTrashUploadedRecordings() {
+    val dueForTrash = getAllRecordings().filter { recording ->
+        val status = readUploadStatus(recording.path)
+        status?.state == UploadState.UPLOADED &&
+            isOlderThanDays(status.uploadedAt, config.daysUntilTrash)
+    }
+
+    if (dueForTrash.isNotEmpty()) {
+        trashRecordings(dueForTrash) {}
+    }
+}
+
+private fun BaseSimpleActivity.purgeExpiredTrashedRecordings() {
+    val expired = getAllRecordings(trashed = true)
+        .filter { isOlderThanDays(it.timestamp, config.daysUntilPurge) }
+    if (expired.isNotEmpty()) {
+        deleteRecordings(expired) {}
     }
 }

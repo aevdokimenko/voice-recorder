@@ -6,9 +6,11 @@ import androidx.work.WorkerParameters
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.fossify.voicerecorder.extensions.config
+import org.fossify.voicerecorder.helpers.EnrollmentClient
 import org.fossify.voicerecorder.helpers.UploadResult
 import org.fossify.voicerecorder.helpers.UploadState
 import org.fossify.voicerecorder.helpers.UploadStatus
+import org.fossify.voicerecorder.helpers.mimeTypeForRecording
 import org.fossify.voicerecorder.helpers.readUploadStatus
 import org.fossify.voicerecorder.helpers.uploadRecording
 import org.fossify.voicerecorder.helpers.writeUploadStatus
@@ -37,9 +39,8 @@ class UploadWorker(
             return@withContext Result.failure()
         }
 
-        val endpoint = applicationContext.config.uploadEndpoint
-        val token = applicationContext.config.uploadToken
-        if (endpoint.isBlank()) {
+        val config = applicationContext.config
+        if (!config.isEnrolled) {
             return@withContext Result.failure()
         }
 
@@ -47,7 +48,25 @@ class UploadWorker(
         writeUploadStatus(path, UploadStatus(state = UploadState.UPLOADING, attempts = attempts))
         notifyListChanged()
 
-        when (val result = uploadRecording(file, endpoint, token)) {
+        val uploadUrl = EnrollmentClient.presign(
+            host = config.serverHost,
+            deviceToken = config.deviceToken,
+            filename = file.name,
+            contentType = mimeTypeForRecording(file.name),
+            sizeBytes = file.length()
+        )
+
+        if (uploadUrl == null) {
+            // Could be an expired token or a server blip; both are worth another attempt.
+            return@withContext if (attempts >= MAX_ATTEMPTS) {
+                markFailed(path, attempts, "presign failed")
+                Result.failure()
+            } else {
+                Result.retry()
+            }
+        }
+
+        when (val result = uploadRecording(file, uploadUrl)) {
             is UploadResult.Success -> {
                 writeUploadStatus(
                     recordingPath = path,

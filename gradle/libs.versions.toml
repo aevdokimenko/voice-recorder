@@ -51,6 +51,7 @@ audiorecordview = "1.0.5"
 autofittextview = "0.2.1"
 junit = "4.13.2"
 json = "20250517"
+zxing-embedded = "4.3.0"
 #Gradle
 gradlePlugins-agp = "9.3.1"
 #build
@@ -118,6 +119,8 @@ autofittextview = { module = "me.grantland:autofittextview", version.ref = "auto
 junit = { module = "junit:junit", version.ref = "junit" }
 # real org.json for unit tests; the platform one is a throwing stub in local JVM tests
 json = { module = "org.json:json", version.ref = "json" }
+# QR scanning without Google Play Services
+zxing-embedded = { module = "com.journeyapps:zxing-android-embedded", version.ref = "zxing-embedded" }
 [bundles]
 compose = [
     "compose-activity",

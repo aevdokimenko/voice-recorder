@@ -25,4 +25,13 @@
     <string name="upload_in_progress">Отправка\u2026</string>
     <string name="upload_done">Отправлено</string>
     <string name="upload_failed">Ошибка отправки \u2014 нажмите, чтобы повторить</string>
+    <string name="enrollment_title">Подключение</string>
+    <string name="enrollment_scan_prompt">Отсканируйте QR-код, предоставленный администратором, чтобы подключить это устройство.</string>
+    <string name="enrollment_scan_button">Сканировать QR-код</string>
+    <string name="enrollment_invalid_qr">Этот QR-код не является кодом подключения.</string>
+    <string name="enrollment_failed">Не удалось подключиться к серверу. Попробуйте ещё раз.</string>
+    <string name="enrollment_succeeded">Подключено</string>
+    <string name="settings_connected_to">Подключено к</string>
+    <string name="settings_rescan_qr">Пересканировать QR-код</string>
+    <string name="settings_not_connected">Нет подключения</string>
 </resources>

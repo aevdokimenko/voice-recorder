@@ -1,5 +1,6 @@
 package org.fossify.voicerecorder.activities
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
@@ -19,8 +20,9 @@ import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.adapters.ViewPagerAdapter
 import org.fossify.voicerecorder.databinding.ActivityMainBinding
 import org.fossify.voicerecorder.extensions.config
-import org.fossify.voicerecorder.extensions.deleteExpiredTrashedRecordings
+import org.fossify.voicerecorder.extensions.applyRetentionPolicy
 import org.fossify.voicerecorder.extensions.deleteTrashedRecordings
+import org.fossify.voicerecorder.extensions.scheduleConfigRefresh
 import org.fossify.voicerecorder.helpers.STOP_AMPLITUDE_UPDATE
 import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.services.RecorderService
@@ -42,16 +44,38 @@ class MainActivity : SimpleActivity() {
         setupEdgeToEdge(padBottomImeAndSystem = listOf(binding.mainTabsHolder))
 
         if (savedInstanceState == null) {
-            deleteExpiredTrashedRecordings()
+            applyRetentionPolicy()
         }
 
         handlePermission(PERMISSION_RECORD_AUDIO) {
             if (it) {
-                setupViewPager()
+                ensureEnrolled()
             } else {
                 toast(org.fossify.commons.R.string.no_audio_permissions)
                 finish()
             }
+        }
+    }
+
+    private val enrollmentLauncher = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && config.isEnrolled) {
+            scheduleConfigRefresh()
+            setupViewPager()
+        } else {
+            toast(R.string.enrollment_failed)
+            finish()
+        }
+    }
+
+    /** Recording is pointless until we know where the audio is going, so gate the UI on it. */
+    private fun ensureEnrolled() {
+        if (config.isEnrolled) {
+            scheduleConfigRefresh()
+            setupViewPager()
+        } else {
+            enrollmentLauncher.launch(Intent(this, EnrollmentActivity::class.java))
         }
     }
 

@@ -192,12 +192,8 @@ abstract class BaseSimpleActivity : EdgeToEdgeActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.enableEdgeToEdge(window)
         registerBackPressedCallback()
-
-        if (!packageName.startsWith("org.fossify.", true)) {
-            if ((0..50).random() == 10 || baseConfig.appRunCount % 100 == 0) {
-                showModdedAppWarning()
-            }
-        }
+        // LOCAL PATCH: upstream shows showModdedAppWarning() here for any package name that does
+        // not start with "org.fossify.". See commons/LOCAL_PATCHES.md.
     }
 
     private fun installFontInflaterFactory() {

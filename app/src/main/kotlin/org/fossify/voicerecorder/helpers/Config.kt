@@ -7,6 +7,7 @@ import androidx.core.content.edit
 import org.fossify.commons.helpers.BaseConfig
 import org.fossify.voicerecorder.BuildConfig
 import org.fossify.voicerecorder.R
+import java.util.UUID
 
 class Config(context: Context) : BaseConfig(context) {
     companion object {
@@ -53,13 +54,64 @@ class Config(context: Context) : BaseConfig(context) {
         set(lastRecycleBinCheck) = prefs.edit().putLong(LAST_RECYCLE_BIN_CHECK, lastRecycleBinCheck)
             .apply()
 
-    var uploadEndpoint: String
-        get() = prefs.getString(UPLOAD_ENDPOINT, BuildConfig.UPLOAD_ENDPOINT)!!
-        set(uploadEndpoint) = prefs.edit { putString(UPLOAD_ENDPOINT, uploadEndpoint) }
+    /** Stable per-install identifier sent with every enrollment. */
+    val clientId: String
+        get() {
+            val existing = prefs.getString(CLIENT_ID, "")!!
+            if (existing.isNotBlank()) {
+                return existing
+            }
 
-    var uploadToken: String
-        get() = prefs.getString(UPLOAD_TOKEN, BuildConfig.UPLOAD_TOKEN)!!
-        set(uploadToken) = prefs.edit { putString(UPLOAD_TOKEN, uploadToken) }
+            val generated = UUID.randomUUID().toString()
+            prefs.edit { putString(CLIENT_ID, generated) }
+            return generated
+        }
+
+    var serverHost: String
+        get() = prefs.getString(SERVER_HOST, "")!!
+        set(serverHost) = prefs.edit { putString(SERVER_HOST, serverHost) }
+
+    var deviceToken: String
+        get() = prefs.getString(DEVICE_TOKEN, "")!!
+        set(deviceToken) = prefs.edit { putString(DEVICE_TOKEN, deviceToken) }
+
+    val isEnrolled: Boolean
+        get() = serverHost.isNotBlank() && deviceToken.isNotBlank()
+
+    /** Host tried without a token on first launch, before falling back to a QR scan. */
+    val wellKnownHost: String
+        get() = BuildConfig.WELL_KNOWN_HOST
+
+    var daysUntilTrash: Int
+        get() = prefs.getInt(DAYS_UNTIL_TRASH, DEFAULT_DAYS_UNTIL_TRASH)
+        set(daysUntilTrash) = prefs.edit { putInt(DAYS_UNTIL_TRASH, daysUntilTrash) }
+
+    var daysUntilPurge: Int
+        get() = prefs.getInt(DAYS_UNTIL_PURGE, DEFAULT_DAYS_UNTIL_PURGE)
+        set(daysUntilPurge) = prefs.edit { putInt(DAYS_UNTIL_PURGE, daysUntilPurge) }
+
+    fun applyEnrollment(host: String, enrollment: Enrollment) {
+        serverHost = host
+        deviceToken = enrollment.deviceToken
+        applyServerFormat(enrollment.format)
+        applyServerRetention(enrollment.retention)
+    }
+
+    fun applyServerFormat(format: ServerFormat) {
+        extensionForCodec(format.codec)?.let { extension = it }
+        bitrate = format.bitrate
+        samplingRate = format.sampleRate
+    }
+
+    fun applyServerRetention(retention: ServerRetention) {
+        daysUntilTrash = retention.daysUntilTrash
+        daysUntilPurge = retention.daysUntilPurge
+    }
+
+    fun clearEnrollment() {
+        serverHost = ""
+        deviceToken = ""
+    }
 
     var keepScreenOn: Boolean
         get() = prefs.getBoolean(KEEP_SCREEN_ON, true)

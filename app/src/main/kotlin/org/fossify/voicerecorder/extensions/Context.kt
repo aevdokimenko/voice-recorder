@@ -13,7 +13,9 @@ import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import org.fossify.commons.extensions.getDuration
 import org.fossify.commons.extensions.isAudioFast
@@ -25,6 +27,7 @@ import org.fossify.voicerecorder.helpers.TOGGLE_WIDGET_UI
 import org.fossify.voicerecorder.helpers.generateRecordingFilename
 import org.fossify.voicerecorder.helpers.readUploadStatus
 import org.fossify.voicerecorder.models.Recording
+import org.fossify.voicerecorder.workers.ConfigRefreshWorker
 import org.fossify.voicerecorder.workers.UploadWorker
 import java.io.File
 import java.util.concurrent.TimeUnit
@@ -112,7 +115,7 @@ fun Context.getAllRecordings(trashed: Boolean = false): ArrayList<Recording> {
 private const val UPLOAD_BACKOFF_SECONDS = 30L
 
 fun Context.enqueueUpload(recordingPath: String) {
-    if (config.uploadEndpoint.isBlank()) {
+    if (!config.isEnrolled) {
         return
     }
 
@@ -130,6 +133,23 @@ fun Context.enqueueUpload(recordingPath: String) {
     WorkManager.getInstance(applicationContext).enqueueUniqueWork(
         UploadWorker.uniqueWorkNameFor(recordingPath),
         ExistingWorkPolicy.REPLACE,
+        request
+    )
+}
+
+private const val CONFIG_REFRESH_DAYS = 1L
+
+fun Context.scheduleConfigRefresh() {
+    val request = PeriodicWorkRequestBuilder<ConfigRefreshWorker>(
+        CONFIG_REFRESH_DAYS,
+        TimeUnit.DAYS
+    ).setConstraints(
+        Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+    ).build()
+
+    WorkManager.getInstance(applicationContext).enqueueUniquePeriodicWork(
+        ConfigRefreshWorker.UNIQUE_NAME,
+        ExistingPeriodicWorkPolicy.KEEP,
         request
     )
 }

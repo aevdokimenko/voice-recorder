@@ -32,4 +32,14 @@
     <string name="upload_in_progress">Uploading\u2026</string>
     <string name="upload_done">Uploaded</string>
     <string name="upload_failed">Upload failed \u2014 tap to retry</string>
+    <!-- Enrollment -->
+    <string name="enrollment_title">Connect</string>
+    <string name="enrollment_scan_prompt">Scan the QR code provided by your administrator to connect this device.</string>
+    <string name="enrollment_scan_button">Scan QR code</string>
+    <string name="enrollment_invalid_qr">That QR code is not a valid connection code.</string>
+    <string name="enrollment_failed">Could not connect to the server. Please try again.</string>
+    <string name="enrollment_succeeded">Connected</string>
+    <string name="settings_connected_to">Connected to</string>
+    <string name="settings_rescan_qr">Re-scan QR code</string>
+    <string name="settings_not_connected">Not connected</string>
 </resources>

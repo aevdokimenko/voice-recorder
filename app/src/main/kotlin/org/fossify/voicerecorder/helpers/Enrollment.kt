@@ -95,3 +95,14 @@ private inline fun <T> runCatchingJson(block: () -> T?): T? = try {
 } catch (@Suppress("TooGenericExceptionCaught", "SwallowedException") e: Exception) {
     null
 }
+
+private const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
+
+/** True when [timestamp] is more than [days] old. A zero/absent timestamp is never expired. */
+fun isOlderThanDays(timestamp: Long, days: Int, now: Long = System.currentTimeMillis()): Boolean {
+    if (timestamp <= 0L) {
+        return false
+    }
+
+    return now - timestamp > days * MILLIS_PER_DAY
+}

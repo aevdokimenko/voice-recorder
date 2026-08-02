@@ -1,5 +1,6 @@
 package org.fossify.voicerecorder.activities
 
+import android.content.Intent
 import android.os.Bundle
 import org.fossify.commons.dialogs.ChangeDateTimeFormatDialog
 import org.fossify.commons.extensions.beGone
@@ -9,6 +10,7 @@ import org.fossify.commons.extensions.getProperPrimaryColor
 import org.fossify.commons.extensions.updateTextColors
 import org.fossify.commons.helpers.NavigationIcon
 import org.fossify.commons.helpers.isTiramisuPlus
+import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.databinding.ActivitySettingsBinding
 import org.fossify.voicerecorder.extensions.config
 import java.util.Locale
@@ -34,6 +36,7 @@ class SettingsActivity : SimpleActivity() {
         setupLanguage()
         setupChangeDateTimeFormat()
         setupKeepScreenOn()
+        setupConnection()
         updateTextColors(binding.settingsNestedScrollview)
 
         binding.settingsGeneralSettingsLabel.setTextColor(getProperPrimaryColor())
@@ -67,6 +70,15 @@ class SettingsActivity : SimpleActivity() {
     private fun setupChangeDateTimeFormat() {
         binding.settingsChangeDateTimeFormatHolder.setOnClickListener {
             ChangeDateTimeFormatDialog(this) {}
+        }
+    }
+
+    private fun setupConnection() {
+        binding.settingsConnectedTo.text = config.serverHost
+            .ifBlank { getString(R.string.settings_not_connected) }
+        binding.settingsRescanQrHolder.setOnClickListener {
+            config.clearEnrollment()
+            startActivity(Intent(this, EnrollmentActivity::class.java))
         }
     }
 

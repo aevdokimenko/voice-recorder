@@ -99,15 +99,19 @@ const val DEVELOPER_PLAY_STORE_URL = "https://play.google.com/store/apps/dev?id=
 const val FAKE_VERSION_APP_LABEL =
     "You are using a fake version of the app. For your own safety download the original one from www.fossify.org. Thanks"
 
+/**
+ * LOCAL PATCH: neutered. See commons/LOCAL_PATCHES.md.
+ *
+ * Upstream shows a "you are using a fake version" dialog whenever the package name does not
+ * start with "org.fossify.", firing at random. LR is a legitimate GPLv3 fork under its own
+ * namespace that credits Fossify in its About screen. The check is disabled here rather than at
+ * its call sites because Compose dispatches it through synthetic lambdas, so removing the one
+ * visible call in AppTheme was not sufficient.
+ */
+@Suppress("UnusedParameter")
 fun Context.fakeVersionCheck(
-    showConfirmationDialog: () -> Unit
-) {
-    if (!packageName.startsWith("org.fossify.", true)) {
-        if ((0..50).random() == 10 || baseConfig.appRunCount % 100 == 0) {
-            showConfirmationDialog()
-        }
-    }
-}
+    @Suppress("UNUSED_PARAMETER") showConfirmationDialog: () -> Unit
+) = Unit
 
 fun ComponentActivity.appOnSdCardCheckCompose(
     showConfirmationDialog: () -> Unit

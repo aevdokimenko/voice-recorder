@@ -39,13 +39,8 @@ android {
         vectorDrawables.useSupportLibrary = true
         buildConfigField(
             "String",
-            "UPLOAD_ENDPOINT",
-            "\"${project.findProperty("UPLOAD_ENDPOINT") ?: ""}\""
-        )
-        buildConfigField(
-            "String",
-            "UPLOAD_TOKEN",
-            "\"${project.findProperty("UPLOAD_TOKEN") ?: ""}\""
+            "WELL_KNOWN_HOST",
+            "\"${project.findProperty("WELL_KNOWN_HOST") ?: ""}\""
         )
     }
 
@@ -149,6 +144,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.work.runtime)
     implementation(libs.autofittextview)
+    implementation(libs.zxing.embedded)
     testImplementation(libs.junit)
     testImplementation(libs.json)
     detektPlugins(libs.compose.detekt)

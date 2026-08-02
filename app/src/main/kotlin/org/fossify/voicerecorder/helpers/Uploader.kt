@@ -22,22 +22,20 @@ sealed interface UploadResult {
 }
 
 /**
- * PUTs [file] to `<endpoint>/<file name>` with a bearer token. Streams the body so a long
- * recording is never held in memory. Transport security is plain TLS: this phase assumes the
- * endpoint is a server the user operates and trusts.
+ * PUTs [file] to a server-issued presigned [uploadUrl]. The URL carries its own authorization,
+ * so no bearer header is sent. Streams the body so a long recording is never held in memory.
+ * Transport security is plain TLS: this phase assumes a server the user operates and trusts.
  */
-fun uploadRecording(file: File, endpoint: String, token: String): UploadResult {
-    val target = "${endpoint.trimEnd('/')}/${file.name}"
+fun uploadRecording(file: File, uploadUrl: String): UploadResult {
     var connection: HttpURLConnection? = null
 
     return try {
-        connection = (URL(target).openConnection() as HttpURLConnection).apply {
+        connection = (URL(uploadUrl).openConnection() as HttpURLConnection).apply {
             requestMethod = "PUT"
             connectTimeout = CONNECT_TIMEOUT_MS
             readTimeout = READ_TIMEOUT_MS
             doOutput = true
             setFixedLengthStreamingMode(file.length())
-            setRequestProperty("Authorization", "Bearer $token")
             setRequestProperty("Content-Type", mimeTypeForRecording(file.name))
         }
 
@@ -65,7 +63,7 @@ internal fun classifyResponse(code: Int): UploadResult = when {
     else -> UploadResult.Permanent("HTTP $code")
 }
 
-private fun mimeTypeForRecording(fileName: String): String = when {
+fun mimeTypeForRecording(fileName: String): String = when {
     fileName.endsWith(".ogg", ignoreCase = true) -> "audio/ogg"
     else -> "audio/mp4"
 }

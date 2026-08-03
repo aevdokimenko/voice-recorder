@@ -13,14 +13,15 @@ You need:
 
 - A Linux machine (1 vCPU / 1 GB RAM is enough; disk sized for your recordings — roughly
   **45 MB per hour** of audio at the default 96 kbps).
-- **A domain name you control**, with a DNS **A record** pointing at the machine's public IP.
-  This is not optional: the app refuses plain HTTP, and the automatic certificate needs a real
-  hostname. See [§8](#8-no-public-domain) if the machine is LAN-only.
-- Ports **80** and **443** reachable from the internet.
+- **A hostname with a real TLS certificate.** The app refuses plain HTTP, so pick one:
+  - **Public domain** — a DNS **A record** pointing at the machine's public IP, with ports **80**
+    and **443** reachable. Caddy then gets a Let's Encrypt certificate automatically.
+  - **Tailscale** — no public DNS, no open ports, no port forwarding. Usually the easier option
+    for an internal tool. Skip to [§8](#8-no-public-domain-use-tailscale), then come back to §4.
 - Root or `sudo`.
 
-Check DNS resolves to the right place *before* going further — Caddy will fail to get a
-certificate otherwise:
+If you're using a public domain, check DNS resolves *before* going further — Caddy will loop on
+certificate failures otherwise:
 
 ```bash
 dig +short lr.example.com     # must print your server's public IP
@@ -70,6 +71,9 @@ sudo ufw status
 
 Only 22, 80 and 443 should be open. MinIO (9000/9001) and the control plane (8080) stay on the
 internal Docker network and must **not** be exposed.
+
+> **On Tailscale, skip 80/443 entirely** — keep only `sudo ufw allow OpenSSH`. Traffic arrives
+> over the tailnet, so nothing needs to be open to the internet.
 
 ---
 
@@ -223,22 +227,102 @@ probe is refused and it falls back to the QR screen.
 
 ---
 
-## 8. No public domain?
+## 8. No public domain? Use Tailscale
 
-The app requires TLS, so a LAN-only box still needs a real certificate. Options, best first:
+The app requires TLS, so a LAN-only box still needs a real certificate. **Tailscale is the easiest
+route**: it issues a genuine, publicly-trusted certificate for your machine's `*.ts.net` name, and
+nothing needs to be exposed to the internet — no port forwarding, no public DNS, no firewall
+holes.
 
-1. **Public DNS name pointing at a private IP.** Perfectly legal: create
-   `lr.internal.example.com` → `192.168.1.50` in public DNS, then have Caddy use a DNS-01
-   challenge (needs a Caddy build with your DNS provider's plugin). Certificate is valid, traffic
-   never leaves your LAN.
-2. **Tailscale.** `tailscale cert` issues a real certificate for your `*.ts.net` name and the
-   machine is reachable from anywhere without opening ports. Probably the least hassle overall.
-3. **Your own internal CA**, with the root certificate installed on each phone. Works, but you
-   must deploy that CA to every device.
+### 8.1 Enable the two tailnet features
+
+In the Tailscale admin console (<https://login.tailscale.com/admin/dns>):
+
+- Turn on **MagicDNS**
+- Turn on **HTTPS Certificates**
+
+### 8.2 Install Tailscale on the server
+
+```bash
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+```
+
+Follow the printed URL to authenticate. Then get the machine's full name:
+
+```bash
+tailscale status --json | grep -m1 '"DNSName"'
+# e.g. "lr-server.tail1a2b3c.ts.net."
+```
+
+Drop the trailing dot — that string is your `LR_DOMAIN`.
+
+### 8.3 Issue the certificate
+
+```bash
+cd ~/lr-server           # wherever your server files are
+sudo tailscale cert --cert-file certs/tls.crt --key-file certs/tls.key \
+  lr-server.tail1a2b3c.ts.net
+sudo chown -R $USER certs
+```
+
+Tailscale renews these, but not in place — add a monthly cron so Caddy keeps a fresh pair:
+
+```bash
+( crontab -l 2>/dev/null; echo "0 3 1 * * cd $HOME/lr-server && sudo tailscale cert --cert-file certs/tls.crt --key-file certs/tls.key lr-server.tail1a2b3c.ts.net && docker compose restart caddy" ) | crontab -
+```
+
+### 8.4 Point Caddy at the certificate instead of Let's Encrypt
+
+Add the `tls` line to the top of the site block in `Caddyfile`:
+
+```caddy
+{$LR_DOMAIN} {
+	tls /certs/tls.crt /certs/tls.key
+	...
+}
+```
+
+And mount the directory — in `docker-compose.yml`, under the `caddy` service's `volumes`:
+
+```yaml
+      - ./certs:/certs:ro
+```
+
+### 8.5 Set the domain and start
+
+In `.env`:
+
+```ini
+LR_DOMAIN=lr-server.tail1a2b3c.ts.net
+```
+
+```bash
+docker compose up -d --build
+curl https://lr-server.tail1a2b3c.ts.net/healthz
+```
+
+### 8.6 Put the phone on the tailnet
+
+Install the Tailscale app on the phone and sign in to the same tailnet. It can then reach the
+server from anywhere — office, home, cellular — with no VPN config and no open ports.
+
+Everything else (QR enrollment, uploads) works unchanged.
+
+> **Ports 80/443 no longer need to be open to the internet.** You can drop those `ufw` rules from
+> §2 and keep only SSH.
+
+> **Trusted-network enrollment on a tailnet:** set `LR_TRUSTED_NETWORKS=100.64.0.0/10`, the CGNAT
+> range Tailscale assigns. Every device on your tailnet then enrols silently, with no QR at all —
+> arguably the nicest setup of the lot.
+
+### Other options
+
+- **Public DNS name pointing at a private IP** — legitimate, and works with a DNS-01 challenge
+  (needs a Caddy build carrying your DNS provider's plugin).
+- **Your own internal CA**, with the root certificate installed on every phone.
 
 Plain HTTP is not an option — the app rejects cleartext to anything but loopback in debug builds.
-
----
 
 ## 9. Day-2 operations
 

@@ -1,0 +1,25 @@
+# Caddyfile for a LAN server using a DNS-01 challenge.
+# Copy over Caddyfile when following DEPLOY.md section 8, option A.
+
+{$LR_DOMAIN} {
+	# Proves ownership via a DNS TXT record, so no inbound port 80 is required and the
+	# machine can sit on a private IP.
+	tls {
+		dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	}
+
+	handle /api/* {
+		reverse_proxy control-plane:8080
+	}
+
+	handle /healthz {
+		reverse_proxy control-plane:8080
+	}
+
+	# No path rewriting: presigned URLs are SigV4-signed over the URI path.
+	handle /{$LR_S3_BUCKET}/* {
+		reverse_proxy minio:9000
+	}
+
+	respond "not found" 404
+}

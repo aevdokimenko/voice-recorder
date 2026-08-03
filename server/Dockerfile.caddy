@@ -1,0 +1,10 @@
+# Caddy with a DNS-provider plugin, needed for the DNS-01 ACME challenge.
+# DNS-01 proves domain ownership through a DNS TXT record instead of an inbound HTTP request,
+# which is what lets a machine with only a private IP obtain a real, publicly-trusted certificate.
+#
+# Swap the module for your provider — full list at https://github.com/caddy-dns
+FROM caddy:2-builder AS builder
+RUN xcaddy build --with github.com/caddy-dns/cloudflare
+
+FROM caddy:2
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy

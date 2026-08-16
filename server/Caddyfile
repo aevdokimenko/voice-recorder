@@ -1,0 +1,20 @@
+{$LR_DOMAIN} {
+	# Enrollment / config / presign.
+	handle /api/* {
+		reverse_proxy control-plane:8080
+	}
+
+	handle /healthz {
+		reverse_proxy control-plane:8080
+	}
+
+	# Object storage, reached only via presigned URLs.
+	#
+	# Routed on the bucket name with NO path rewriting: presigned URLs are SigV4-signed and the
+	# signature covers the URI path, so stripping a prefix here would invalidate every upload.
+	handle /{$LR_S3_BUCKET}/* {
+		reverse_proxy minio:9000
+	}
+
+	respond "not found" 404
+}

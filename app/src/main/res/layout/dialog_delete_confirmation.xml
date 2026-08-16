@@ -17,11 +17,4 @@
         android:text="@string/delete_recordings_confirmation"
         android:textSize="@dimen/bigger_text_size" />
 
-    <org.fossify.commons.views.MyAppCompatCheckbox
-        android:id="@+id/skip_the_recycle_bin_checkbox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/delete_remember_title"
-        android:text="@string/skip_the_recycle_bin" />
-
 </RelativeLayout>

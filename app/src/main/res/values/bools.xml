@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+    LR is a self-hosted fork, so it opts out of the Fossify distribution machinery that
+    org.fossify:commons enables by default:
+
+    - hide_google_relations: suppresses Play Store / Google upsell prompts.
+    - pretend_thank_you_installed: commons paywalls features behind its separate "Thank You"
+      app; without this, settings render as "(Locked)" and their controls stop responding.
+    - show_donate_in_about: we don't solicit donations on Fossify's behalf.
+
+    These previously came from the foss/gplay product flavors, which were removed when the app
+    collapsed to a single build variant.
+    -->
+    <bool name="hide_google_relations">true</bool>
+    <bool name="pretend_thank_you_installed">true</bool>
+    <bool name="show_donate_in_about">false</bool>
+</resources>

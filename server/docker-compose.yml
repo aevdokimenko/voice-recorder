@@ -1,0 +1,82 @@
+services:
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  # Creates the bucket once, then exits.
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      LR_S3_BUCKET: ${LR_S3_BUCKET}
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
+      mc mb --ignore-existing local/$$LR_S3_BUCKET &&
+      mc anonymous set none local/$$LR_S3_BUCKET &&
+      echo 'bucket ready'"
+
+  control-plane:
+    build: .
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      LR_PORT: 8080
+      LR_STATE_FILE: /data/devices.json
+      LR_ENROLLMENT_TOKENS: ${LR_ENROLLMENT_TOKENS}
+      LR_TRUSTED_NETWORKS: ${LR_TRUSTED_NETWORKS}
+      LR_CODEC: ${LR_CODEC}
+      LR_BITRATE: ${LR_BITRATE}
+      LR_SAMPLE_RATE: ${LR_SAMPLE_RATE}
+      LR_DAYS_UNTIL_TRASH: ${LR_DAYS_UNTIL_TRASH}
+      LR_DAYS_UNTIL_PURGE: ${LR_DAYS_UNTIL_PURGE}
+      LR_S3_ENDPOINT: http://minio:9000
+      # Presigned URLs are opened by the phone, so they must be signed for the PUBLIC address.
+      # No path prefix: SigV4 signs the URI path, so the proxy must forward it unchanged.
+      LR_S3_PUBLIC_ENDPOINT: https://${LR_DOMAIN}
+      LR_S3_BUCKET: ${LR_S3_BUCKET}
+      LR_S3_ACCESS_KEY: ${MINIO_ROOT_USER}
+      LR_S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - cp-data:/data
+    restart: unless-stopped
+
+  # Terminates TLS with an automatic Let's Encrypt certificate and fronts both services.
+  caddy:
+    image: caddy:2
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      LR_DOMAIN: ${LR_DOMAIN}
+      LR_S3_BUCKET: ${LR_S3_BUCKET}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - control-plane
+      - minio
+    restart: unless-stopped
+
+volumes:
+  minio-data:
+  cp-data:
+  caddy-data:
+  caddy-config:

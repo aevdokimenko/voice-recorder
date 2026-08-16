@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
 import org.fossify.commons.adapters.MyRecyclerViewAdapter
+import org.fossify.commons.extensions.beVisibleIf
 import org.fossify.commons.extensions.formatDate
 import org.fossify.commons.extensions.formatSize
 import org.fossify.commons.extensions.getFormattedDuration
@@ -21,14 +22,13 @@ import org.fossify.voicerecorder.activities.SimpleActivity
 import org.fossify.voicerecorder.databinding.ItemRecordingBinding
 import org.fossify.voicerecorder.dialogs.DeleteConfirmationDialog
 import org.fossify.voicerecorder.dialogs.RenameRecordingDialog
-import org.fossify.voicerecorder.extensions.config
-import org.fossify.voicerecorder.extensions.deleteRecordings
+import org.fossify.voicerecorder.extensions.enqueueUpload
 import org.fossify.voicerecorder.extensions.trashRecordings
+import org.fossify.voicerecorder.helpers.UploadState
 import org.fossify.voicerecorder.interfaces.RefreshRecordingsListener
 import org.fossify.voicerecorder.models.Events
 import org.fossify.voicerecorder.models.Recording
 import org.greenrobot.eventbus.EventBus
-import kotlin.math.min
 
 class RecordingsAdapter(
     activity: SimpleActivity,
@@ -40,6 +40,7 @@ class RecordingsAdapter(
     RecyclerViewFastScroller.OnPopupTextUpdate {
 
     var currRecordingId = 0
+    private var isCurrentlyPlaying = false
 
     init {
         setupDragListener(true)
@@ -150,43 +151,14 @@ class RecordingsAdapter(
             resources.getQuantityString(R.plurals.delete_recordings, itemsCnt, itemsCnt)
         }
 
-        val baseString = if (activity.config.useRecycleBin) {
-            org.fossify.commons.R.string.move_to_recycle_bin_confirmation
-        } else {
-            R.string.delete_recordings_confirmation
-        }
-        val question = String.format(resources.getString(baseString), items)
+        val question = String.format(
+            resources.getString(org.fossify.commons.R.string.move_to_recycle_bin_confirmation),
+            items
+        )
 
-        DeleteConfirmationDialog(
-            activity = activity,
-            message = question,
-            showSkipRecycleBinOption = activity.config.useRecycleBin
-        ) { skipRecycleBin ->
+        DeleteConfirmationDialog(activity = activity, message = question) {
             ensureBackgroundThread {
-                val toRecycleBin = !skipRecycleBin && activity.config.useRecycleBin
-                if (toRecycleBin) {
-                    trashRecordings()
-                } else {
-                    deleteRecordings()
-                }
-            }
-        }
-    }
-
-    private fun deleteRecordings() {
-        if (selectedKeys.isEmpty()) {
-            return
-        }
-
-        val oldRecordingIndex = recordings.indexOfFirst { it.id == currRecordingId }
-        val recordingsToRemove = recordings
-            .filter { selectedKeys.contains(it.id) } as ArrayList<Recording>
-
-        val positions = getSelectedItemPositions()
-
-        activity.deleteRecordings(recordingsToRemove) { success ->
-            if (success) {
-                doDeleteAnimation(oldRecordingIndex, recordingsToRemove, positions)
+                trashRecordings()
             }
         }
     }
@@ -196,7 +168,6 @@ class RecordingsAdapter(
             return
         }
 
-        val oldRecordingIndex = recordings.indexOfFirst { it.id == currRecordingId }
         val recordingsToRemove = recordings
             .filter { selectedKeys.contains(it.id) } as ArrayList<Recording>
 
@@ -204,37 +175,36 @@ class RecordingsAdapter(
 
         activity.trashRecordings(recordingsToRemove) { success ->
             if (success) {
-                doDeleteAnimation(oldRecordingIndex, recordingsToRemove, positions)
+                doDeleteAnimation(recordingsToRemove, positions)
                 EventBus.getDefault().post(Events.RecordingTrashUpdated())
             }
         }
     }
 
     private fun doDeleteAnimation(
-        oldRecordingIndex: Int,
         recordingsToRemove: ArrayList<Recording>,
         positions: ArrayList<Int>
     ) {
         recordings.removeAll(recordingsToRemove.toSet())
         activity.runOnUiThread {
+            if (recordingsToRemove.any { it.id == currRecordingId }) {
+                refreshListener.stopPlaybackOf(currRecordingId)
+            }
+
             if (recordings.isEmpty()) {
                 refreshListener.refreshRecordings()
                 finishActMode()
             } else {
                 positions.sortDescending()
                 removeSelectedItems(positions)
-                if (recordingsToRemove.map { it.id }.contains(currRecordingId)) {
-                    val newRecordingIndex = min(oldRecordingIndex, recordings.size - 1)
-                    val newRecording = recordings[newRecordingIndex]
-                    refreshListener.playRecording(newRecording, false)
-                }
             }
         }
     }
 
-    fun updateCurrentRecording(newId: Int) {
+    fun updateCurrentRecording(newId: Int, isPlaying: Boolean) {
         val oldId = currRecordingId
         currRecordingId = newId
+        isCurrentlyPlaying = isPlaying
         notifyItemChanged(recordings.indexOfFirst { it.id == oldId })
         notifyItemChanged(recordings.indexOfFirst { it.id == newId })
     }
@@ -261,10 +231,40 @@ class RecordingsAdapter(
                 recordingTitle.setTextColor(root.context.getProperPrimaryColor())
             }
 
+            val isThisRowPlaying = recording.id == currRecordingId && isCurrentlyPlaying
+            recordingPlayPause.setImageResource(
+                if (isThisRowPlaying) {
+                    org.fossify.commons.R.drawable.ic_pause_vector
+                } else {
+                    org.fossify.commons.R.drawable.ic_play_vector
+                }
+            )
+
             recordingTitle.text = recording.title
             recordingDate.text = recording.timestamp.formatDate(root.context)
             recordingDuration.text = recording.duration.getFormattedDuration()
             recordingSize.text = recording.size.formatSize()
+
+            val uploadLabel = when (recording.uploadState) {
+                UploadState.PENDING -> R.string.upload_pending
+                UploadState.UPLOADING -> R.string.upload_in_progress
+                UploadState.UPLOADED -> R.string.upload_done
+                UploadState.FAILED -> R.string.upload_failed
+                null -> null
+            }
+
+            recordingUploadStatus.beVisibleIf(uploadLabel != null)
+            if (uploadLabel != null) {
+                recordingUploadStatus.text = root.context.getString(uploadLabel)
+                recordingUploadStatus.setTextColor(textColor)
+            }
+
+            recordingUploadStatus.setOnClickListener {
+                if (recording.uploadState == UploadState.FAILED) {
+                    activity.enqueueUpload(recording.path)
+                    refreshListener.refreshRecordings()
+                }
+            }
         }
     }
 

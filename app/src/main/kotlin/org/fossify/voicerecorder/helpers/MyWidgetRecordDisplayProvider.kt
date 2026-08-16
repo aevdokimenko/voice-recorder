@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package org.fossify.voicerecorder.helpers
 
 import android.app.PendingIntent
@@ -12,12 +14,12 @@ import android.widget.RemoteViews
 import org.fossify.commons.extensions.getColoredDrawableWithColor
 import org.fossify.voicerecorder.R
 import org.fossify.voicerecorder.activities.BackgroundRecordActivity
-import org.fossify.voicerecorder.extensions.config
 import org.fossify.voicerecorder.extensions.drawableToBitmap
 
 class MyWidgetRecordDisplayProvider : AppWidgetProvider() {
     companion object {
         private const val OPEN_APP_INTENT_ID = 1
+        private const val RECORDING_COLOR = 0xFFE53935.toInt()
     }
 
     override fun onUpdate(
@@ -32,7 +34,7 @@ class MyWidgetRecordDisplayProvider : AppWidgetProvider() {
         if (intent.action == TOGGLE_WIDGET_UI && intent.extras?.containsKey(IS_RECORDING) == true) {
             val appWidgetManager = AppWidgetManager.getInstance(context) ?: return
             val color = if (intent.extras!!.getBoolean(IS_RECORDING)) {
-                context.config.widgetBgColor
+                RECORDING_COLOR
             } else {
                 Color.WHITE
             }
@@ -44,8 +46,7 @@ class MyWidgetRecordDisplayProvider : AppWidgetProvider() {
     }
 
     private fun changeWidgetIcon(appWidgetManager: AppWidgetManager, context: Context, color: Int) {
-        val alpha = Color.alpha(context.config.widgetBgColor)
-        val bmp = getColoredIcon(context, color, alpha)
+        val bmp = getColoredIcon(context, color)
 
         appWidgetManager.getAppWidgetIds(getComponentName(context)).forEach {
             RemoteViews(context.packageName, R.layout.widget_record_display).apply {
@@ -73,11 +74,10 @@ class MyWidgetRecordDisplayProvider : AppWidgetProvider() {
         }
     }
 
-    private fun getColoredIcon(context: Context, color: Int, alpha: Int): Bitmap {
+    private fun getColoredIcon(context: Context, color: Int): Bitmap {
         val drawable = context.resources.getColoredDrawableWithColor(
             drawableId = org.fossify.commons.R.drawable.ic_microphone_vector,
-            color = color,
-            alpha = alpha
+            color = color
         )
         return context.drawableToBitmap(drawable)
     }

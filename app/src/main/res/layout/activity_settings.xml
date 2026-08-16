@@ -36,61 +36,11 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/settings_color_customization_section_label"
-                style="@style/SettingsSectionLabelStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/color_customization" />
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/settings_color_customization_holder"
-                style="@style/SettingsHolderTextViewOneLinerStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_color_customization_label"
-                    style="@style/SettingsTextLabelStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/customize_colors"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/settings_widget_color_customization_holder"
-                style="@style/SettingsHolderTextViewOneLinerStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_widget_color_customization_label"
-                    style="@style/SettingsTextLabelStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/customize_widget_colors"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <include
-                android:id="@+id/settings_color_customization_divider"
-                layout="@layout/divider" />
-
-            <TextView
                 android:id="@+id/settings_general_settings_label"
                 style="@style/SettingsSectionLabelStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/general_settings" />
-
-            <org.fossify.commons.views.PurchaseThankYouItem
-                android:id="@+id/settings_purchase_thank_you_holder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
 
             <RelativeLayout
                 android:id="@+id/settings_use_english_holder"
@@ -149,28 +99,6 @@
                 android:id="@+id/settings_general_settings_divider"
                 layout="@layout/divider" />
 
-            <TextView
-                android:id="@+id/settings_recording_section_label"
-                style="@style/SettingsSectionLabelStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/recording" />
-
-            <RelativeLayout
-                android:id="@+id/settings_record_after_launch_holder"
-                style="@style/SettingsHolderSwitchStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyMaterialSwitch
-                    android:id="@+id/settings_record_after_launch"
-                    style="@style/SettingsSwitchStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/record_after_launch" />
-
-            </RelativeLayout>
-
             <RelativeLayout
                 android:id="@+id/settings_keep_screen_on_holder"
                 style="@style/SettingsHolderSwitchStyle"
@@ -187,199 +115,40 @@
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/settings_save_recordings_holder"
+                android:id="@+id/settings_connection_holder"
                 style="@style/SettingsHolderTextViewStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_save_recordings_label"
+                    android:id="@+id/settings_connected_to_label"
                     style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/save_recordings_in" />
+                    android:text="@string/settings_connected_to" />
 
                 <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_save_recordings"
+                    android:id="@+id/settings_connected_to"
                     style="@style/SettingsTextValueStyle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_save_recordings_label"
-                    tools:text="@string/internal" />
+                    android:layout_below="@+id/settings_connected_to_label"
+                    tools:text="https://lr.example.com" />
 
             </RelativeLayout>
 
             <RelativeLayout
-                android:id="@+id/settings_filename_pattern_holder"
-                style="@style/SettingsHolderTextViewStyle"
+                android:id="@+id/settings_rescan_qr_holder"
+                style="@style/SettingsHolderTextViewOneLinerStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_filename_pattern_label"
+                    android:id="@+id/settings_rescan_qr_label"
                     style="@style/SettingsTextLabelStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/filename_pattern" />
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_filename_pattern"
-                    style="@style/SettingsTextValueStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_filename_pattern_label"
-                    tools:text="%Y%M%D_%h%m%s" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/settings_extension_holder"
-                style="@style/SettingsHolderTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_extension_label"
-                    style="@style/SettingsTextLabelStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/extension" />
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_extension"
-                    style="@style/SettingsTextValueStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_extension_label"
-                    tools:text="@string/m4a" />
-
-            </RelativeLayout>
-
-            <include
-                android:id="@+id/settings_recording_divider"
-                layout="@layout/divider" />
-
-            <TextView
-                android:id="@+id/settings_audio_section_label"
-                style="@style/SettingsSectionLabelStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/audio" />
-
-            <RelativeLayout
-                android:id="@+id/settings_bitrate_holder"
-                style="@style/SettingsHolderTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_bitrate_label"
-                    style="@style/SettingsTextLabelStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/bitrate" />
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_bitrate"
-                    style="@style/SettingsTextValueStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_bitrate_label"
-                    tools:text="192 kbps" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/settings_sampling_rate_holder"
-                style="@style/SettingsHolderTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_sampling_rate_label"
-                    style="@style/SettingsTextLabelStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/sample_rate" />
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_sampling_rate"
-                    style="@style/SettingsTextValueStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_sampling_rate_label"
-                    tools:text="48000 Hz" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/settings_microphone_mode_holder"
-                style="@style/SettingsHolderTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_microphone_mode_label"
-                    style="@style/SettingsTextLabelStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/microphone_mode" />
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_microphone_mode"
-                    style="@style/SettingsTextValueStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_microphone_mode_label"
-                    tools:text="@string/system_default" />
-            </RelativeLayout>
-
-            <include
-                android:id="@+id/settings_audio_divider"
-                layout="@layout/divider" />
-
-            <TextView
-                android:id="@+id/settings_recycle_bin_label"
-                style="@style/SettingsSectionLabelStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/recycle_bin" />
-
-            <RelativeLayout
-                android:id="@+id/settings_use_recycle_bin_holder"
-                style="@style/SettingsHolderSwitchStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyMaterialSwitch
-                    android:id="@+id/settings_use_recycle_bin"
-                    style="@style/SettingsSwitchStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/move_items_into_recycle_bin" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/settings_empty_recycle_bin_holder"
-                style="@style/SettingsHolderTextViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_empty_recycle_bin_label"
-                    style="@style/SettingsTextLabelStyle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/empty_recycle_bin" />
-
-                <org.fossify.commons.views.MyTextView
-                    android:id="@+id/settings_empty_recycle_bin_size"
-                    style="@style/SettingsTextValueStyle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/settings_empty_recycle_bin_label"
-                    tools:text="0 B" />
+                    android:text="@string/settings_rescan_qr" />
 
             </RelativeLayout>
         </LinearLayout>

@@ -24,7 +24,7 @@ fun hasSigningVars(): Boolean {
 
 base {
     val versionCode = project.property("VERSION_CODE").toString().toInt()
-    archivesName = "voicerecorder-$versionCode"
+    archivesName = "lr-$versionCode"
 }
 
 android {
@@ -37,6 +37,11 @@ android {
         versionName = project.property("VERSION_NAME").toString()
         versionCode = project.property("VERSION_CODE").toString().toInt()
         vectorDrawables.useSupportLibrary = true
+        buildConfigField(
+            "String",
+            "WELL_KNOWN_HOST",
+            "\"${project.findProperty("WELL_KNOWN_HOST") ?: ""}\""
+        )
     }
 
     signingConfigs {
@@ -81,13 +86,6 @@ android {
         }
     }
 
-    flavorDimensions.add("variants")
-    productFlavors {
-        register("core")
-        register("foss")
-        register("gplay")
-    }
-
     sourceSets {
         getByName("main").java.directories.add("src/main/kotlin")
     }
@@ -113,7 +111,7 @@ android {
         )
     }
 
-    namespace = project.property("APP_ID").toString()
+    namespace = "org.fossify.voicerecorder"
 
     lint {
         checkReleaseBuilds = false
@@ -138,13 +136,16 @@ detekt {
 }
 
 dependencies {
-    implementation(libs.fossify.commons)
+    implementation(project(":commons"))
     implementation(libs.eventbus)
     implementation(libs.audiorecordview)
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.constraintlayout)
-    implementation(libs.tandroidlame)
+    implementation(libs.androidx.work.runtime)
     implementation(libs.autofittextview)
+    implementation(libs.zxing.embedded)
+    testImplementation(libs.junit)
+    testImplementation(libs.json)
     detektPlugins(libs.compose.detekt)
 }

@@ -5,6 +5,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Renamed the app to LR (package `ai.lequipe.lr`)
+- Merged the Recorder and Player screens into a single Recordings screen with inline per-item playback
+- Recording filenames now use a fixed `yyyyMMdd_HHmmss` format
+- The recycle bin is now always enabled; deleting a recording always moves it to the Recycle Bin first
+- Moved "Empty Recycle Bin" into the Recycle Bin tab's toolbar
+- Trimmed Settings down to save folder, keep screen on, and general settings
+- Added GPLv3 / Fossify Voice Recorder attribution to the About screen
+
+### Removed
+- Removed mp3 recording support (m4a and ogg remain)
+- Removed the customizable recording-filename pattern editor
+- Removed themed launcher icons and widget/launcher color customization
+- Removed support for the third-party `RECORD_SOUND_ACTION` intent
+- Collapsed the `foss`/`gplay` build flavors into a single build variant
 
 ## [1.7.1] - 2026-02-14
 ### Changed

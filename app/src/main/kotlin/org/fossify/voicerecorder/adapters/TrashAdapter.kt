@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
 import org.fossify.commons.adapters.MyRecyclerViewAdapter
 import org.fossify.commons.dialogs.ConfirmationDialog
+import org.fossify.commons.extensions.beGone
 import org.fossify.commons.extensions.formatDate
 import org.fossify.commons.extensions.formatSize
 import org.fossify.commons.extensions.getFormattedDuration
@@ -171,6 +172,7 @@ class TrashAdapter(
         ItemRecordingBinding.bind(view).apply {
             root.setupViewBackground(activity)
             recordingFrame.isSelected = selectedKeys.contains(recording.id)
+            recordingPlayPause.beGone()
 
             arrayListOf(
                 recordingTitle,
